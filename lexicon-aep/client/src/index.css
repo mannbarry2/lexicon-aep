@@ -1,65 +1,138 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: 42 33% 97%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 204 73% 21%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 42 17% 92%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 42 17% 92%;
+    --muted-foreground: 0 0% 38%;
+
+    --accent: 26 90% 37%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 65% 42%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 42 20% 87%;
+    --input: 42 20% 87%;
+    --ring: 204 73% 21%;
+
+    --radius: 0.25rem;
+  }
+
   * {
     @apply border-border;
   }
 
   body {
-    @apply antialiased bg-gray-50 text-foreground;
-    font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
+    @apply antialiased bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold text-gray-900 font-display;
-    line-height: 1.3;
-    letter-spacing: -0.01em;
+    @apply font-display text-foreground;
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
   }
-  
+
+  h1 { @apply text-4xl md:text-5xl; }
+  h2 { @apply text-3xl md:text-4xl; }
+  h3 { @apply text-2xl md:text-3xl; }
+  h4 { @apply text-xl md:text-2xl; }
+
   a {
-    @apply text-primary hover:text-primary/80 transition-colors;
+    @apply text-primary hover:text-accent transition-colors;
+    text-decoration-color: hsl(var(--primary) / 0.25);
+    text-underline-offset: 3px;
   }
 }
 
 @layer components {
-  /* Business card */
+  /* Editorial card: white surface on cream bg, thin border, no shadow */
   .card-business {
-    @apply bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200;
+    @apply bg-card border border-border transition-colors duration-200;
+    border-radius: var(--radius);
   }
-  
-  /* Business button */
+  .card-business:hover {
+    @apply border-foreground/30;
+  }
+
+  /* Editorial button: tighter radius, restrained */
   .btn-business {
-    @apply transition-colors duration-200 font-medium rounded-md px-4 py-2 inline-flex items-center justify-center font-display;
+    @apply transition-colors duration-150 font-medium px-4 py-2 inline-flex items-center justify-center;
+    border-radius: var(--radius);
+    font-family: 'Inter', system-ui, sans-serif;
+    letter-spacing: 0.01em;
   }
-  
+
   .btn-business-primary {
-    @apply bg-primary text-white hover:bg-primary/90;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
   }
-  
+
   .btn-business-secondary {
-    @apply bg-white text-gray-700 hover:bg-gray-50 border border-gray-300;
+    @apply bg-card text-foreground border border-border hover:bg-muted;
   }
-  
-  /* Category badge with business style */
+
+  /* Editorial badge: subdued, no border by default */
   .badge-business {
-    @apply rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200 font-display;
+    @apply px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground;
+    border-radius: var(--radius);
+    letter-spacing: 0.02em;
   }
-  
-  /* Image Aspect Ratio */
+
+  .badge-business-primary {
+    @apply px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary;
+    border-radius: var(--radius);
+    letter-spacing: 0.02em;
+  }
+
+  .badge-business-success {
+    @apply px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary;
+    border-radius: var(--radius);
+    letter-spacing: 0.02em;
+  }
+
+  .badge-business-warning {
+    @apply px-2 py-0.5 text-xs font-medium bg-accent/15 text-accent;
+    border-radius: var(--radius);
+    letter-spacing: 0.02em;
+  }
+
+  /* Editorial input: bottom-border emphasis on focus */
+  .input-business {
+    @apply bg-card text-foreground border border-border px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary/30;
+    border-radius: var(--radius);
+  }
+
+  /* Image Aspect Ratio helpers (unchanged) */
   .aspect-w-4 {
     position: relative;
     padding-bottom: calc(3 / 4 * 100%);
   }
-  
+
   .aspect-h-3 {
     position: relative;
   }
-  
+
   .aspect-w-4 > *, .aspect-h-3 > * {
     position: absolute;
     height: 100%;
@@ -69,65 +142,45 @@
     bottom: 0;
     left: 0;
   }
-  
-  .badge-business-primary {
-    @apply rounded-full px-2.5 py-0.5 text-xs font-medium font-display bg-primary/10 text-primary border border-primary/20;
-  }
-  
-  .badge-business-success {
-    @apply rounded-full px-2.5 py-0.5 text-xs font-medium font-display bg-primary/10 text-primary border border-primary/20;
-  }
-  
-  .badge-business-warning {
-    @apply rounded-full px-2.5 py-0.5 text-xs font-medium font-display bg-red-100 text-red-800 border border-red-200;
-  }
-  
-  /* Business input field */
-  .input-business {
-    @apply rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm;
-  }
 }
 
 @layer utilities {
   .truncate-2-lines {
     display: -webkit-box;
     -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;  
+    -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  
+
   .truncate-3-lines {
     display: -webkit-box;
     -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;  
+    -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  
-  /* Social media in-app browser improvements */
+
+  /* Long-form term definition reading styles */
   .term-definition p {
     margin-bottom: 1em !important;
-    line-height: 1.6 !important;
+    line-height: 1.65 !important;
     font-size: 1rem !important;
     text-align: left !important;
-    word-spacing: 0.05em !important;
-    letter-spacing: 0.01em !important;
-    color: #333333 !important;
+    color: hsl(var(--foreground)) !important;
   }
-  
-  .term-definition ul, 
+
+  .term-definition ul,
   .term-definition ol {
     margin-left: 1.5em !important;
     margin-bottom: 1em !important;
     padding-left: 0.5em !important;
   }
-  
+
   .term-definition li {
-    margin-bottom: 0.8em !important;
-    line-height: 1.5 !important;
+    margin-bottom: 0.6em !important;
+    line-height: 1.6 !important;
     position: relative !important;
   }
-  
-  /* Special improved formatting for mobile in-app browsers */
+
   @media (max-width: 768px) {
     .term-definition p,
     .term-definition li,
@@ -135,37 +188,30 @@
       font-size: 1.05rem !important;
       line-height: 1.7 !important;
     }
-    
-    .term-definition h1, 
-    .term-definition h2, 
+
+    .term-definition h1,
+    .term-definition h2,
     .term-definition h3 {
-      line-height: 1.4 !important;
+      line-height: 1.3 !important;
       margin-top: 1.2em !important;
       margin-bottom: 0.6em !important;
     }
-    
-    /* iOS specific improvements */
+
     @supports (-webkit-touch-callout: none) {
       .term-definition {
         -webkit-text-size-adjust: 100% !important;
         text-size-adjust: 100% !important;
       }
-      
+
       .term-definition p,
       .term-definition li {
-        /* Slightly larger font for iOS */
         font-size: 1.1rem !important;
         line-height: 1.75 !important;
-        
-        /* iOS specific letter spacing for readability */
         letter-spacing: 0.01em !important;
         word-spacing: 0.03em !important;
-        
-        /* Prevent unwanted text inflation */
         max-height: 1000000px !important;
       }
-      
-      /* Fix emoji rendering on iOS */
+
       .term-definition .emoji,
       .term-definition img[alt*="emoji"] {
         vertical-align: middle !important;
@@ -173,21 +219,17 @@
       }
     }
   }
-  
-  /* Fix for sandwich highlighting in LinkedIn browser */
+
   .term-definition .sandwich,
   .term-definition span[style*="background"],
   .term-definition span[class*="highlighted"] {
-    background-color: #FFEB3B !important;
-    padding: 0.15em 0.3em !important;
-    border-radius: 0.2em !important;
-    display: inline-block !important;
-    margin: 0 0.1em !important;
+    background-color: hsl(var(--accent) / 0.18) !important;
+    color: hsl(var(--accent)) !important;
+    padding: 0.1em 0.3em !important;
+    border-radius: var(--radius) !important;
     font-weight: 500 !important;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
   }
-  
-  /* Improve emoji rendering */
+
   .term-definition img.emoji {
     height: 1em !important;
     width: 1em !important;

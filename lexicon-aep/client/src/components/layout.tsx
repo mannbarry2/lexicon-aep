@@ -15,7 +15,7 @@ export function Layout({ children }: LayoutProps) {
   const isProduction = window.location.hostname === 'lexiconaep.com';
   
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Tealium script - only included in production */}
       {isProduction && (
         <Helmet>
@@ -60,30 +60,30 @@ export function Layout({ children }: LayoutProps) {
           </main>
           
           {/* Footer */}
-          <footer className="bg-gray-800 text-white py-6 mt-auto">
+          <footer className="border-t border-border bg-background py-8 mt-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                <div className="flex flex-col md:flex-row md:space-x-8 items-center space-y-4 md:space-y-0">
-                  <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
+              <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-sm">
+                <div className="flex flex-col md:flex-row md:space-x-6 items-center space-y-3 md:space-y-0">
+                  <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">
                     About
                   </Link>
-                  <Link href="/privacy" className="text-gray-300 hover:text-white transition-colors">
+                  <Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
                     Privacy
                   </Link>
                 </div>
                 <div>
-                  <a 
-                    href="https://www.linkedin.com/in/barrymann/" 
-                    target="_blank" 
+                  <a
+                    href="https://www.linkedin.com/in/barrymann/"
+                    target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center text-gray-300 hover:text-white transition-colors"
+                    className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    <Linkedin className="h-5 w-5 mr-2" />
-                    <span>Barry Mann - LinkedIn</span>
+                    <Linkedin className="h-4 w-4 mr-2" />
+                    <span>Barry Mann</span>
                   </a>
                 </div>
-                <div className="text-gray-400 text-sm">
-                  © {new Date().getFullYear()} <a href="https://barrymann.com?utm_source=aep_lexicon&utm_medium=footer&utm_campaign=portfolio" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">AEP Lexicon / barrymann.com</a>
+                <div className="text-muted-foreground">
+                  © {new Date().getFullYear()} <a href="https://barrymann.com?utm_source=aep_lexicon&utm_medium=footer&utm_campaign=portfolio" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">AEP Lexicon</a>
                 </div>
               </div>
             </div>

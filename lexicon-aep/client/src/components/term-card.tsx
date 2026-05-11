@@ -85,36 +85,29 @@ export function TermCard({ term }: TermCardProps) {
   };
 
   return (
-    <div 
+    <div
       className={cn(
-        "card-business p-0 cursor-pointer hover:translate-y-[-2px]",
-        term.isLegacy 
-          ? "border-l-4 border-orange-500" 
+        "card-business p-0 cursor-pointer transition-all duration-200 hover:-translate-y-0.5",
+        term.isLegacy
+          ? "border-l-4 border-accent"
           : "border-l-4 border-primary"
       )}
       onClick={handleCardClick}
     >
       <div className="p-5">
-        <div className="flex justify-between items-start">
-          <div>
-            {/* No badges at the top of the card */}
-          </div>
-          <div>
-            {/* Top right area kept for symmetry but now empty */}
-          </div>
-        </div>
-        
-        <h3 className="mt-3 text-lg font-medium text-gray-900">{term.name}</h3>
-        <div 
-          className="mt-2 text-sm text-gray-600 truncate-3-lines"
+        <h3 className="font-display text-xl text-foreground" style={{ fontWeight: 500, letterSpacing: "-0.015em" }}>
+          {term.name}
+        </h3>
+        <div
+          className="mt-2 text-sm text-muted-foreground truncate-3-lines leading-relaxed"
           dangerouslySetInnerHTML={{ __html: term.definition }}
         />
-        
-        {/* Voting buttons moved down here */}
+
+        {/* Voting buttons */}
         <div className="mt-4 flex items-center">
           <button
             className={cn(
-              "btn-business btn-business-secondary text-gray-700 mr-2 !px-2 !py-1",
+              "btn-business btn-business-secondary mr-2 !px-2 !py-1",
               isVoting && "opacity-50 pointer-events-none"
             )}
             onClick={(e) => {
@@ -123,17 +116,17 @@ export function TermCard({ term }: TermCardProps) {
             }}
             disabled={isVoting}
           >
-            <ThumbsUp 
+            <ThumbsUp
               className={cn(
                 "h-4 w-4 inline mr-1 text-primary",
                 upvoteAnimation && "animate-[clap_0.5s_ease-in-out]"
-              )} 
+              )}
             />
             <span className="text-xs font-medium">{localUpvotes}</span>
           </button>
           <button
             className={cn(
-              "btn-business btn-business-secondary text-gray-700 !px-2 !py-1",
+              "btn-business btn-business-secondary !px-2 !py-1",
               isVoting && "opacity-50 pointer-events-none"
             )}
             onClick={(e) => {
@@ -142,39 +135,39 @@ export function TermCard({ term }: TermCardProps) {
             }}
             disabled={isVoting}
           >
-            <ThumbsDown 
+            <ThumbsDown
               className={cn(
-                "h-4 w-4 inline mr-1 text-gray-500",
+                "h-4 w-4 inline mr-1 text-muted-foreground",
                 downvoteAnimation && "animate-[clap_0.5s_ease-in-out]"
-              )} 
+              )}
             />
             <span className="text-xs font-medium">{localDownvotes}</span>
           </button>
         </div>
-        
+
         <div className="mt-4">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.12em]">
             Categories
           </h4>
-          <div className="mt-1 flex flex-wrap gap-2">
+          <div className="mt-2 flex flex-wrap gap-1.5">
             {term.categories.map((category) => (
-              <Badge 
+              <Badge
                 key={category.id}
-                className="bg-blue-100 text-blue-800 border-blue-200"
+                className="badge-business-primary border-0"
               >
                 {category.name}
               </Badge>
             ))}
           </div>
         </div>
-        
+
         {/* Show current term for legacy terms */}
         {term.isLegacy && term.currentTerm && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          <div className="mt-4 pt-4 border-t border-border">
+            <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.12em]">
               Current AdobeSpeak Term
             </h4>
-            <a 
+            <a
               href={`/term/${term.currentTerm.slug}`}
               className="mt-2 inline-flex items-center btn-business btn-business-primary text-sm"
               onClick={(e) => {
@@ -188,16 +181,16 @@ export function TermCard({ term }: TermCardProps) {
             </a>
           </div>
         )}
-        
+
         {/* Show legacy names for current terms */}
         {!term.isLegacy && term.legacyNames && term.legacyNames.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          <div className="mt-4 pt-4 border-t border-border">
+            <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.12em]">
               Legacy AdobeSpeak Names
             </h4>
             <div className="mt-2 space-y-2">
               {term.legacyNames.map((legacy) => (
-                <a 
+                <a
                   key={legacy.id}
                   href={`/term/${legacy.slug}`}
                   className="inline-flex items-center btn-business btn-business-secondary text-sm"

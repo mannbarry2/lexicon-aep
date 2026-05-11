@@ -5,8 +5,9 @@ export default {
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     fontFamily: {
-      sans: ['Montserrat', 'Inter', 'sans-serif'],
-      display: ['Montserrat', 'sans-serif'],
+      sans: ['Inter', 'system-ui', 'sans-serif'],
+      display: ['Fraunces', 'Georgia', 'serif'],
+      serif: ['Fraunces', 'Georgia', 'serif'],
     },
     extend: {
       borderRadius: {
