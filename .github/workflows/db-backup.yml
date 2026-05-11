@@ -26,7 +26,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          pg_dump --no-owner --no-privileges --format=custom \
+          /usr/lib/postgresql/17/bin/pg_dump --no-owner --no-privileges --format=custom \
             --file="${{ steps.filename.outputs.name }}" "$DATABASE_URL"
           ls -lh "${{ steps.filename.outputs.name }}"
 
