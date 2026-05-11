@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+server/public/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+my-secrets.txt
+*-secrets.txt
+*service-account*.json
+firebase-adminsdk*.json
+
+# Database dumps
+*.sql
+*.dump
+*.bak
+lexicon-backup*.sql
+lexicon-data-only*.sql
+
+# User uploads (runtime data)
+uploads/
+tmp/
+logfile
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Replit
+.replit
+replit.nix
+.config/
+.agents/
+
+# Vite
+vite.config.ts.*

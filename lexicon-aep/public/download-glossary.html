@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download RT-CDP Collaboration Glossary</title>
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #000;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .container {
+      background: #f9f9f9;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .btn {
+      display: inline-block;
+      background: #000;
+      color: #fff;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-top: 20px;
+      cursor: pointer;
+      border: none;
+      text-align: center;
+    }
+    .btn:hover {
+      background: #333;
+    }
+    pre {
+      background: #f4f4f4;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+      overflow: auto;
+      font-size: 14px;
+      margin-top: 20px;
+    }
+    .note {
+      background: #fffbea;
+      border-left: 4px solid #ffd700;
+      padding: 10px 15px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>RT-CDP Collaboration Glossary Terms</h1>
+    
+    <p>This page provides the RT-CDP Collaboration glossary terms in CSV format for import into the AEP Lexicon application.</p>
+    
+    <div class="note">
+      <p><strong>Note:</strong> This CSV file contains 24 terms related to RT-CDP Collaboration that can be imported through the Admin interface.</p>
+    </div>
+    
+    <button id="downloadBtn" class="btn">Download CSV File</button>
+    
+    <p>Preview of CSV content:</p>
+    <pre id="csvPreview">Term Name,Definition,Categories,Category IDs,Is Legacy,Current Term ID
+Advertiser,Any entity that will spend marketing budget to reach audiences across publishers or other brand partners to achieve goals of brand awareness prospecting re-engagement and conversions.,RT-CDP Collaboration,29,false,
+Cloud storage,A cloud computing solution that enables storing data and files on the internet through a provider like AWS Azure or GCP.,RT-CDP Collaboration,29,false,
+Connection request,A formal request sent from one organization to another to establish a data-sharing connection.,RT-CDP Collaboration,29,false,
+...and 21 more terms</pre>
+  </div>
+
+  <script>
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+      // CSV content
+      const csvContent = `Term Name,Definition,Categories,Category IDs,Is Legacy,Current Term ID
+Advertiser,Any entity that will spend marketing budget to reach audiences across publishers or other brand partners to achieve goals of brand awareness prospecting re-engagement and conversions.,RT-CDP Collaboration,29,false,
+Cloud storage,A cloud computing solution that enables storing data and files on the internet through a provider like AWS Azure or GCP.,RT-CDP Collaboration,29,false,
+Connection request,A formal request sent from one organization to another to establish a data-sharing connection.,RT-CDP Collaboration,29,false,
+Connection settings,Settings sent by the connection initiator to the collaborator after a request is accepted governing collaboration rules.,RT-CDP Collaboration,29,false,
+Data clean room,A secure environment allowing participants to use data assets with strict access controls for agreed uses.,RT-CDP Collaboration,29,false,
+Data collaboration,Combining and analyzing data within a company or with partners for targeting measurement and insights.,RT-CDP Collaboration,29,false,
+Data connection,The source from where data is imported into RT-CDP Collaboration; currently only Experience Platform is supported.,RT-CDP Collaboration,29,false,
+Data sharing agreement,A contract outlining terms and conditions for data sharing between parties.,RT-CDP Collaboration,29,false,
+Device identifier,A unique number associated with a device used for tracking and targeting.,RT-CDP Collaboration,29,false,
+Invite,A request sent to a user or organization to join a project or data collaboration.,RT-CDP Collaboration,29,false,
+Match keys,Unique identifiers used to link records across datasets for integration and analysis.,RT-CDP Collaboration,29,false,
+Overlap,Common audience segments between datasets used to identify collaboration opportunities.,RT-CDP Collaboration,29,false,
+Project,A workspace for collaborating on data integration and segmentation tasks.,RT-CDP Collaboration,29,false,
+Public audience,An audience discoverable by collaborators within a project as opposed to private or custom audiences.,RT-CDP Collaboration,29,false,
+Publisher,An operator of online content where personal data is collected with consent for advertising or measurement.,RT-CDP Collaboration,29,false,
+Sketches,Simplified audience data summaries enabling overlap analysis without sharing personal data.,RT-CDP Collaboration,29,false,
+Use case,A specific scenario that RT-CDP Collaboration can address like audience discovery or campaign measurement.,RT-CDP Collaboration,29,false,
+Adobe Experience Cloud Collaboration,A feature set that allows organizations to collaborate on customer data directly within the Adobe Experience Cloud ecosystem for targeted advertising and measurement.,RT-CDP Collaboration,29,false,
+RT-CDP Collaboration,A component of Adobe Real-time Customer Data Platform (RT-CDP) that allows data sharing between parties under controlled conditions, enabling data clean room functionality.,RT-CDP Collaboration,29,false,
+Partner Data Marketplace,An ecosystem within RT-CDP Collaboration where organizations can discover partners with complementary data assets for collaboration opportunities.,RT-CDP Collaboration,29,false,
+First-party data collaboration,The process of securely sharing and analyzing first-party data between partners within the RT-CDP Collaboration environment.,RT-CDP Collaboration,29,false,
+Collaboration template,Predefined configurations in RT-CDP Collaboration that establish rules and parameters for specific types of data partnerships.,RT-CDP Collaboration,29,false,
+Data clean room partner,An organization that participates in data sharing arrangements through RT-CDP Collaboration's data clean room environment.,RT-CDP Collaboration,29,false,
+Differential privacy,A data protection technique used in RT-CDP Collaboration that adds statistical noise to query results to protect individual records while preserving overall insights.,RT-CDP Collaboration,29,false,`;
+      
+      // Create a blob with the CSV content
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'rt_cdp_glossary.csv';
+      
+      // Add to the DOM and trigger the download
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    });
+  </script>
+</body>
+</html>

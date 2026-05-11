@@ -1,0 +1,18 @@
+ID,Term Name,Definition,Categories,Category IDs,Is Legacy,Current Term,Current Term ID,Legacy Names,Legacy Term IDs,Upvotes,Downvotes
+45,"""Advertiser""","""Any entity that will spend marketing budget to reach audiences across publishers or other brand partners to achieve goals of brand awareness, prospecting, re-engagement, and conversions.""","""RT-CDP Collaboration""",29,,,,,,0,0
+46,"""Cloud storage""","""A cloud computing solution that enables storing data and files on the internet through a provider like AWS, Azure, or GCP.""","""RT-CDP Collaboration""",29,,,,,,0,0
+47,"""Connection request""","""A formal request sent from one organization to another to establish a data-sharing connection.""","""RT-CDP Collaboration""",29,,,,,,0,0
+48,"""Connection settings""","""Settings sent by the connection initiator to the collaborator after a request is accepted, governing collaboration rules.""","""RT-CDP Collaboration""",29,,,,,,0,0
+49,"""Data clean room""","""A secure environment allowing participants to use data assets with strict access controls for agreed uses.""","""RT-CDP Collaboration""",29,,,,,,0,0
+50,"""Data collaboration""","""Combining and analyzing data within a company or with partners for targeting, measurement, and insights.""","""RT-CDP Collaboration""",29,,,,,,0,0
+51,"""Data connection""","""The source from where data is imported into RT-CDP Collaboration; currently, only Experience Platform is supported.""","""RT-CDP Collaboration""",29,,,,,,0,0
+52,"""Data sharing agreement""","""A contract outlining terms and conditions for data sharing between parties.""","""RT-CDP Collaboration""",29,,,,,,0,0
+53,"""Device identifier""","""A unique number associated with a device used for tracking and targeting.""","""RT-CDP Collaboration""",29,,,,,,0,0
+54,"""Invite""","""A request sent to a user or organization to join a project or data collaboration.""","""RT-CDP Collaboration""",29,,,,,,0,0
+55,"""Match keys""","""Unique identifiers used to link records across datasets for integration and analysis.""","""RT-CDP Collaboration""",29,,,,,,0,0
+56,"""Overlap""","""Common audience segments between datasets used to identify collaboration opportunities.""","""RT-CDP Collaboration""",29,,,,,,0,0
+57,"""Project""","""A workspace for collaborating on data integration and segmentation tasks.""","""RT-CDP Collaboration""",29,,,,,,0,0
+58,"""Public audience""","""An audience discoverable by collaborators within a project, as opposed to private or custom audiences.""","""RT-CDP Collaboration""",29,,,,,,0,0
+59,"""Publisher""","""An operator of online content where personal data is collected with consent for advertising or measurement.""","""RT-CDP Collaboration""",29,,,,,,0,0
+60,"""Sketches""","""Simplified audience data summaries enabling overlap analysis without sharing personal data.""","""RT-CDP Collaboration""",29,,,,,,0,0
+61,"""Use case""","""A specific scenario that RT-CDP Collaboration can address, like audience discovery or campaign measurement.""","""RT-CDP Collaboration""",29,,,,,,0,0

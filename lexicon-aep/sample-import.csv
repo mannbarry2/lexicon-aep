@@ -1,0 +1,11 @@
+id,name,definition,categories,categoryIds,isLegacy,currentTerm,currentTermId,legacyNames,legacyTermIds,upvotes,downvotes
+,"API Connector","A tool that allows users to bring data from third-party sources into Adobe Experience Platform via RESTful APIs.","CJA, UX","33, 35",No,,,,,0,0
+,"Activation","The process of making audience segments available for use in marketing channels and destinations.","CJA, RT-CDP Collaboration, TLA (3 letter abbreviation)","33, 29, 34",No,,,,,0,0
+,"Offer Decisioning","A capability that delivers the best offer and experience to your customers across all touchpoints at the right time.","CJA, UX","33, 35",No,,,,,0,0
+,"Flow Service","An API service used to collect and centralize customer data from various sources within Adobe Experience Platform.","CJA, UX","33, 35",No,,,,,0,0
+,"Legacy Launch","The previous name for Adobe Experience Platform Data Collection before rebranding.","CJA, ACS Data Collection","33, 31",Yes,"ACS Data Collection",81,,,,0,0
+,"Visitor ID Service","Legacy term for the Adobe Experience Cloud Identity Service that manages cross-solution identity.","AA (Adobe Analytics), TLA (3 letter abbreviation)","32, 34",Yes,,,,,0,0
+,"DTM","Dynamic Tag Management, the predecessor to Adobe Experience Platform Tags for managing analytics and marketing tags.","CJA, TLA (3 letter abbreviation)","33, 34",Yes,,,,,0,0
+,"Data Workbench","Legacy analytics tool that provided multi-dimensional analysis of customer data across channels.","AA (Adobe Analytics), UX","32, 35",Yes,,,,,0,0
+,"Edge Configuration","Settings that determine how data is processed at the edge network for real-time personalization.","CJA, RT-CDP Collaboration","33, 29",No,,,,,0,0
+,"Query Service Notebooks","Interactive environment for querying and visualizing data using SQL within Adobe Experience Platform.","CJA, AA (Adobe Analytics)","33, 32",No,,,,,0,0

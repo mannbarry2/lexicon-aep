@@ -1,0 +1,49 @@
+Adobe AEP Termbase Project: Full Specifications
+Project Overview
+I attempted to build the "Adobe AEP Termbase" - a comprehensive technical dictionary web application focused on Adobe Experience Platform terminology. This application allows users to search, browse, add, and edit technical terms related to Adobe products, with a focus on tracking both current and legacy product names.
+
+Core Functionality
+Search and Browse: Users can search for specific terms or browse all terms in the dictionary
+Term Management: Add new terms, edit existing ones, and mark terms as legacy or current
+Categories: Terms are organized into categories like "AEP", "CJA", "RT-CDP", etc.
+Legacy Tracking: The system tracks product name evolution through "legacy names" and "current term" relationships
+User Authentication: Google-based authentication with admin privileges for mannbarry2@gmail.com
+Voting System: Users can upvote/downvote terms for accuracy with clap animations instead of toasts
+Technical Stack
+Frontend: React with TypeScript, using TailwindCSS and Shadcn/UI components
+Backend: Node.js with Express
+Database: PostgreSQL via Neon database service
+Authentication: Firebase Authentication with Google sign-in
+State Management: React Query for data fetching and caching
+Deployment: Replit deployment service
+Design Specifications
+Color System: Traffic light colors - green for current terms, amber for legacy terms
+Layout: Responsive design with search functionality prominently displayed
+Navigation: Four main functions - Add Word, Edit Meaning, Browse Termbase, Browse Categories
+Animation: Clap animations for vote feedback rather than toast notifications
+Data Structure
+Terms: Contains fields for term, definition, categories (array), isLegacy flag, currentTermId, legacyNames (array)
+Users: Basic user information with admin flags
+Votes: Track user votes on term accuracy
+Categories: Dynamic list growing as terms are added with new categories
+User Roles
+Anonymous Users: Can browse and search terms, view term details
+Authenticated Users: Can upvote/downvote terms for accuracy
+Admin Users: Can add new terms, edit existing terms, add categories, and delete terms
+Special Requirements
+Admin Access: Only mannbarry2@gmail.com has admin privileges
+Domain: Intended to be hosted at https://aep-termbase.barrymann.com/
+Contact Info: All contact emails must be barry@barrymann.com
+Default View: Browse Termbase is the default landing page
+Development Challenges
+Database connection reliability in production environment
+Type compatibility issues between interface definitions
+Admin authentication verification
+Deployment process stability
+Deployment Requirements
+Persistent multi-user database (PostgreSQL)
+Firebase authentication integration
+Environment variable handling for credentials
+Automated database migrations to ensure schema consistency
+Project Goals
+Create a robust, user-friendly technical dictionary that helps Adobe users understand complex terminology, track the evolution of product names over time, and contribute to term accuracy through community voting.

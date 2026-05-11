@@ -1,0 +1,19 @@
+# Migration bundle from Replit — contains secrets and DB dumps
+replit-migration/
+replit-migration-bundle.tar.gz
+*-ready-for-github*.tar.gz
+
+# Stray files
+import
+
+# Claude Code workspace settings (user-local)
+.claude/
+
+# Env files (defense in depth — inner repo also gitignores these)
+.env
+.env.local
+.env.*.local
+
+# Any *-secrets file anywhere
+*-secrets*
+*.secrets

@@ -1,0 +1,83 @@
+ID,Term Name,Definition,Categories,Category IDs,Is Legacy,Current Term,Current Term ID,Legacy Names,Legacy Term IDs,Upvotes,Downvotes
+,Customer Journey Analytics,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Schema,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Event Dataset,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Profile Dataset,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Identity Map,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Unified Profile,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Lookup dataset,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Backfill,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Data View,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Schema Field Types,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Component Selection,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,XDM,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Workspace,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Panel,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Table,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Freeform Table,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Breakdown,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Metric,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Dimension,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Filter,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Calculated Metric,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Derived Field,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Time Parting,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Rolling Calculations,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Date Range,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Time Zone Configuration,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Participation Metric,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Line Chart,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Bar Chart,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Scatter Plot,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Flow Analysis,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Fallout Analysis,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Attribution Analysis,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Venn Diagram,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Overlap Analysis,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Retention Analysis,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Segment,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Filter Container,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Attribution Model,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Touchpoint,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Conversion Event,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Pathing,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Participation,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Persistence,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Lookback Window,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Tag,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Curation,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Scheduled Projects,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Shared Filters,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Approved Components,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Access Level,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Permissions,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Product Profiles,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Admin Console,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Data Usage Governance,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,PII,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Field-Level Access,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Component Governance,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Missing Data,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Unexpected Metric,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Unpopulated Fields,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Connection Errors,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Component Lookup,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Project Debugging,,"[New Term Dropzone, CJA]","53,33",No,,,,,0,0
+,Journey Orchestration,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Decision Management,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Offer Decisioning,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Edge Segmentation,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Segment Qualification,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Real-time Event,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Orchestration Flow,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Journey Step,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Eligibility Rule,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Offer Eligibility,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Offer Ranking,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Action Type,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Response Tracking,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Time Constraints,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Event Forwarding,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Event-based Trigger,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Journey Conditions,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0
+,Personalisation Attributes,,"[New Term Dropzone, AJO]","53,50",No,,,,,0,0

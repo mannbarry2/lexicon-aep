@@ -1,0 +1,56 @@
+Submitting form...
+index-rKNxTSrk.js:1686 Form submitted
+index-rKNxTSrk.js:1686 Setting up cleanup timeout
+index-rKNxTSrk.js:1686 Attempting email service as fallback
+index-rKNxTSrk.js:1686 Trying formspree as an alternative
+index-rKNxTSrk.js:1686 
+            
+            
+           POST https://docs.google.com/forms/d/e/1FAIpQLScy6ZbS9p59FMV-QVi7VFzJ6QnXewNK7q0LbIJhhz60xjAk1A/formResponse net::ERR_ABORTED 404 (Not Found)
+h @ index-rKNxTSrk.js:1686
+NM @ index-rKNxTSrk.js:37
+kM @ index-rKNxTSrk.js:37
+AM @ index-rKNxTSrk.js:37
+Cx @ index-rKNxTSrk.js:37
+VN @ index-rKNxTSrk.js:37
+(anonymous) @ index-rKNxTSrk.js:37
+ny @ index-rKNxTSrk.js:40
+pN @ index-rKNxTSrk.js:37
+wp @ index-rKNxTSrk.js:37
+Pv @ index-rKNxTSrk.js:37
+HM @ index-rKNxTSrk.js:37Understand this error
+index-rKNxTSrk.js:1686 Fetch request completed (note: we can't see success/failure due to no-cors)
+
+                
+          
+          
+          
+         Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warning
+formResponse:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-rKNxTSrk.js:1686 
+            
+            
+           POST https://formspree.io/f/mpzvjbkn 404 (Not Found)
+h @ index-rKNxTSrk.js:1686
+NM @ index-rKNxTSrk.js:37
+kM @ index-rKNxTSrk.js:37
+AM @ index-rKNxTSrk.js:37
+Cx @ index-rKNxTSrk.js:37
+VN @ index-rKNxTSrk.js:37
+(anonymous) @ index-rKNxTSrk.js:37
+ny @ index-rKNxTSrk.js:40
+pN @ index-rKNxTSrk.js:37
+wp @ index-rKNxTSrk.js:37
+Pv @ index-rKNxTSrk.js:37
+HM @ index-rKNxTSrk.js:37Understand this error
+index-rKNxTSrk.js:1686 Formspree response status: 404
+index-rKNxTSrk.js:1686 Formspree response: {"error":"Form not found","errors":[{"code":"FORM_NOT_FOUND","message":"Form not found"}]}
+
+index-rKNxTSrk.js:1686 Email service response status: 200
+index-rKNxTSrk.js:1686 Email service response: {"success":"false","message":"This form needs Activation. We've sent you an email containing an 'Activate Form' link. Just click it and your form will be actived!"}
+index-rKNxTSrk.js:1686 Cleaning up form and iframe
+index-rKNxTSrk.js:1686 Form removed from document
+index-rKNxTSrk.js:1686 Iframe removed from document
