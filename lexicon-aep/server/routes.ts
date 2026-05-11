@@ -27,19 +27,7 @@ import { auth, storage as firebaseStorage } from "./firebase-admin";
 const authenticateFirebase = async (req: Request, res: Response, next: Function) => {
   try {
     const authHeader = req.headers.authorization;
-    
-    // Special override for mannbarry2@gmail.com - grants god-level permissions
-    if (authHeader && authHeader.includes('mannbarry2@gmail.com')) {
-      req.user = {
-        id: 999,
-        email: 'mannbarry2@gmail.com',
-        displayName: 'Barry Mann (Admin Override)',
-        isAdmin: true
-      };
-      console.log("Admin override activated for mannbarry2@gmail.com");
-      return next();
-    }
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       req.user = undefined;
       return next();
