@@ -39,4 +39,4 @@ jobs:
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: ${{ steps.filename.outputs.name }}
-          destination: ${{ secrets.FIREBASE_PROJECT_ID }}.appspot.com/db-backups
+          destination: ${{ secrets.FIREBASE_PROJECT_ID }}.firebasestorage.app/db-backups
