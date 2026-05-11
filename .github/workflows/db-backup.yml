@@ -1,0 +1,42 @@
+name: Database Backup
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Install PostgreSQL 17 client
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl --fail -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+
+      - name: Set backup filename
+        id: filename
+        run: echo "name=lexicon-$(date -u +%Y-%m-%dT%H%M%SZ).dump" >> "$GITHUB_OUTPUT"
+
+      - name: Dump database
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          pg_dump --no-owner --no-privileges --format=custom \
+            --file="${{ steps.filename.outputs.name }}" "$DATABASE_URL"
+          ls -lh "${{ steps.filename.outputs.name }}"
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+
+      - name: Upload to Firebase Storage
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: ${{ steps.filename.outputs.name }}
+          destination: ${{ secrets.FIREBASE_PROJECT_ID }}.appspot.com/db-backups
