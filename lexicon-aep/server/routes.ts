@@ -1570,7 +1570,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const termWithMetadata = await storage.getTermWithMetadata(term.id);
       
       // Always use the production URL for images
-      const baseUrl = 'https://lexiconaep.com';
+      const baseUrl = 'https://lexiconaep.barrymann.com';
       
       // Get the first image if available
       let firstImage = `${baseUrl}/logo-social.png`;
@@ -1623,7 +1623,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           <title>LinkedIn Test - ${termWithMetadata.name}</title>
           <meta property="og:title" content="${termWithMetadata.name} | Adobe AEP Lexicon">
           <meta property="og:description" content="${metaDescription}">
-          <meta property="og:url" content="https://lexiconaep.com/term/${slug}">
+          <meta property="og:url" content="https://lexiconaep.barrymann.com/term/${slug}">
           <meta property="og:image" content="${firstImage}">
           <meta property="og:image:width" content="1200">
           <meta property="og:image:height" content="630">
@@ -1661,7 +1661,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Always use the production URL for social sharing
       // This ensures images will be found when links are shared
       // This is particularly important for LinkedIn which requires fully qualified URLs
-      const baseUrl = 'https://lexiconaep.com';
+      const baseUrl = 'https://lexiconaep.barrymann.com';
       
       // Get the first image if available for og:image - make sure it exists
       // LinkedIn requires absolute URLs for images
@@ -1707,7 +1707,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const metaData = {
         title: `${termWithMetadata.name} | Adobe AEP Lexicon`,
         description: metaDescription,
-        url: `https://lexiconaep.com/term/${slug}`,
+        url: `https://lexiconaep.barrymann.com/term/${slug}`,
         image: firstImage,
         type: 'article'
       };
@@ -1734,7 +1734,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour cache
       
       // Get the production URL to redirect to
-      const targetUrl = `https://lexiconaep.com/term/${slug}`;
+      const targetUrl = `https://lexiconaep.barrymann.com/term/${slug}`;
       console.log(`Redirecting social preview request to: ${targetUrl}`);
       
       // Send permanent redirect to the actual term page

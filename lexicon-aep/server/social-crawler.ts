@@ -60,7 +60,7 @@ export function isWhatsAppCrawler(req: Request): boolean {
 }
 
 // Generate HTML with Open Graph meta tags for social media crawlers
-export async function generateMetaTagsHtml(url: string, host: string = 'lexiconaep.com', protocol: string = 'https'): Promise<string | null> {
+export async function generateMetaTagsHtml(url: string, host: string = 'lexiconaep.barrymann.com', protocol: string = 'https'): Promise<string | null> {
   // Check if it's a term detail page
   const termSlugMatch = url.match(/\/term\/([^\/]+)$/);
   
@@ -84,8 +84,8 @@ export async function generateMetaTagsHtml(url: string, host: string = 'lexicona
         return null;
       }
       
-      // Get the full server URL - always use https://lexiconaep.com for production
-      const baseUrl = 'https://lexiconaep.com';
+      // Get the full server URL - always use https://lexiconaep.barrymann.com for production
+      const baseUrl = 'https://lexiconaep.barrymann.com';
       
       // Log the complete term data for debugging
       console.log(`Social crawler: Generated metadata for term ${term.name} (${slug})`);
@@ -112,7 +112,7 @@ export async function generateMetaTagsHtml(url: string, host: string = 'lexicona
                  typeof termWithMetadata.images[0].filename === 'string') {
             // Always use the absolute production URL for social media images
             // This ensures LinkedIn, WhatsApp, etc. can access the image even if it only exists in production
-            firstImage = `https://lexiconaep.com/uploads/${termWithMetadata.images[0].filename}`;
+            firstImage = `https://lexiconaep.barrymann.com/uploads/${termWithMetadata.images[0].filename}`;
             console.log("Social crawler using local term image:", firstImage);
           } else {
             throw new Error("No valid image URL found");
@@ -149,11 +149,11 @@ export async function generateMetaTagsHtml(url: string, host: string = 'lexicona
   <meta charset="UTF-8">
   <title>${termWithMetadata.name} | Adobe AEP Lexicon</title>
   <meta name="description" content="${metaDescription}">
-  <link rel="canonical" href="https://lexiconaep.com/term/${slug}">
+  <link rel="canonical" href="https://lexiconaep.barrymann.com/term/${slug}">
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="article">
-  <meta property="og:url" content="https://lexiconaep.com/term/${slug}">
+  <meta property="og:url" content="https://lexiconaep.barrymann.com/term/${slug}">
   <meta property="og:title" content="${termWithMetadata.name} | Adobe AEP Lexicon">
   <meta property="og:description" content="${metaDescription}">
   <meta property="og:image" content="${firstImage}">
@@ -215,7 +215,7 @@ export async function generateMetaTagsHtml(url: string, host: string = 'lexicona
     }
   </style>
   
-  <meta http-equiv="refresh" content="0;url=https://lexiconaep.com/term/${slug}">
+  <meta http-equiv="refresh" content="0;url=https://lexiconaep.barrymann.com/term/${slug}">
 </head>
 <body>
   <div class="term-header">
@@ -238,7 +238,7 @@ export async function generateMetaTagsHtml(url: string, host: string = 'lexicona
     </div>`}
   
   <div class="redirect-message">
-    <p>Redirecting to <a href="https://lexiconaep.com/term/${slug}">Adobe AEP Lexicon</a>...</p>
+    <p>Redirecting to <a href="https://lexiconaep.barrymann.com/term/${slug}">Adobe AEP Lexicon</a>...</p>
   </div>
 </body>
 </html>`;
@@ -259,11 +259,11 @@ export async function generateMetaTagsHtml(url: string, host: string = 'lexicona
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://lexiconaep.com">
+  <meta property="og:url" content="https://lexiconaep.barrymann.com">
   <meta property="og:title" content="Adobe AEP Lexicon">
   <meta property="og:description" content="The definitive terminology guide for Adobe Experience Platform">
-  <meta property="og:image" content="https://lexiconaep.com/logo-social.png">
-  <meta property="og:image:secure_url" content="https://lexiconaep.com/logo-social.png">
+  <meta property="og:image" content="https://lexiconaep.barrymann.com/logo-social.png">
+  <meta property="og:image:secure_url" content="https://lexiconaep.barrymann.com/logo-social.png">
   <meta property="og:image:alt" content="Adobe AEP Lexicon Logo">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -276,12 +276,12 @@ export async function generateMetaTagsHtml(url: string, host: string = 'lexicona
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Adobe AEP Lexicon">
   <meta name="twitter:description" content="The definitive terminology guide for Adobe Experience Platform">
-  <meta name="twitter:image" content="https://lexiconaep.com/logo-social.png">
+  <meta name="twitter:image" content="https://lexiconaep.barrymann.com/logo-social.png">
   
-  <meta http-equiv="refresh" content="0;url=https://lexiconaep.com">
+  <meta http-equiv="refresh" content="0;url=https://lexiconaep.barrymann.com">
 </head>
 <body>
-  <p>Redirecting to <a href="https://lexiconaep.com">Adobe AEP Lexicon</a>...</p>
+  <p>Redirecting to <a href="https://lexiconaep.barrymann.com">Adobe AEP Lexicon</a>...</p>
 </body>
 </html>
   `;

@@ -13,8 +13,8 @@ export function ImageWithFallback({
   
   // Transform image URLs to always use production domain for LinkedIn sharing
   // This helps with images that exist in production but not in the development environment
-  const isProduction = window.location.hostname === 'lexiconaep.com';
-  const imageUrl = isProduction ? src : src.replace(/^\/uploads/, 'https://lexiconaep.com/uploads');
+  const isProduction = window.location.hostname === 'lexiconaep.barrymann.com';
+  const imageUrl = isProduction ? src : src.replace(/^\/uploads/, 'https://lexiconaep.barrymann.com/uploads');
   
   return (
     <div className="relative">

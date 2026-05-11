@@ -43,12 +43,12 @@ function App() {
             <meta property="og:title" content="Adobe AEP Lexicon" />
             <meta property="og:description" content="The definitive terminology guide for Adobe Experience Platform" />
             <meta property="og:type" content="website" />
-            <meta property="og:url" content="https://lexiconaep.com" />
-            <meta property="og:image" content="https://lexiconaep.com/logo-social.png" />
+            <meta property="og:url" content="https://lexiconaep.barrymann.com" />
+            <meta property="og:image" content="https://lexiconaep.barrymann.com/logo-social.png" />
             <meta name="twitter:card" content="summary" />
             <meta name="twitter:title" content="Adobe AEP Lexicon" />
             <meta name="twitter:description" content="The definitive terminology guide for Adobe Experience Platform" />
-            <meta name="twitter:image" content="https://lexiconaep.com/logo-social.png" />
+            <meta name="twitter:image" content="https://lexiconaep.barrymann.com/logo-social.png" />
           </Helmet>
           <Switch>
             <Route path="/" component={BrowseCategories} />

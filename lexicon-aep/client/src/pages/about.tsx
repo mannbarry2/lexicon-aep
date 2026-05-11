@@ -1,49 +1,111 @@
 import { Layout } from "@/components/layout";
+import { Linkedin, ExternalLink } from "lucide-react";
 
 export default function About() {
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">About Adobe AEP Lexicon</h1>
-        
-        <div className="prose prose-blue max-w-none">
-          <p className="text-lg text-gray-700 leading-relaxed mb-6">
-            Adobe AEP Lexicon is a community-driven technical dictionary web application for Adobe Experience Platform terminology, 
-            enabling collaborative knowledge sharing through an interactive and user-friendly platform. Visit us at <a href="https://lexiconaep.com" className="text-blue-600 hover:text-blue-800 font-medium">https://lexiconaep.com</a>.
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.18em] mb-4">
+          About
+        </p>
+        <h1 className="font-display text-4xl md:text-5xl text-foreground mb-6" style={{ fontWeight: 500, letterSpacing: "-0.02em" }}>
+          AEP Lexicon
+        </h1>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-12">
+          A curated reference for the terminology of Adobe Experience Platform &mdash;
+          maintained as a project of{" "}
+          <a
+            href="https://barrymann.com?utm_source=aep_lexicon&utm_medium=about&utm_campaign=portfolio"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:text-accent"
+          >
+            Barry Mann
+          </a>
+          .
+        </p>
+
+        <section className="mb-12">
+          <h2 className="font-display text-2xl md:text-3xl text-foreground mb-4" style={{ fontWeight: 500, letterSpacing: "-0.015em" }}>
+            Mission
+          </h2>
+          <p className="text-base text-foreground/85 leading-relaxed">
+            To build a comprehensive, accurate, and approachable reference for Adobe
+            Experience Platform &mdash; one that helps practitioners, developers, and
+            newcomers navigate a sprawling product ecosystem with confidence. Every
+            entry is written and curated rather than scraped, with current and legacy
+            terminology clearly distinguished so nobody is left guessing whether
+            they're reading about the right thing.
           </p>
-          
-          <h2 className="text-2xl font-semibold text-gray-900 mt-10 mb-4">Our Mission</h2>
-          <p className="text-lg text-gray-700 leading-relaxed mb-6">
-            To create a comprehensive resource for Adobe Experience Platform terminology that is accessible, up-to-date, and collaboratively 
-            maintained by the community. We aim to help professionals, developers, and learners better understand the Adobe ecosystem through 
-            clear, accurate definitions and explanations.
-          </p>
-          
-          <h2 className="text-2xl font-semibold text-gray-900 mt-10 mb-4">Key Features</h2>
-          <ul className="text-lg text-gray-700 leading-relaxed list-disc pl-6 mb-6">
-            <li className="mb-2">Comprehensive collection of Adobe Experience Platform terms</li>
-            <li className="mb-2">Community voting system to highlight the most accurate and helpful definitions</li>
-            <li className="mb-2">Clear distinction between current and legacy terminology</li>
-            <li className="mb-2">Category-based organization for easier navigation</li>
-            <li className="mb-2">Export functionality for offline reference</li>
-            <li className="mb-2">Open contribution model allowing anyone to add and update terms</li>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="font-display text-2xl md:text-3xl text-foreground mb-4" style={{ fontWeight: 500, letterSpacing: "-0.015em" }}>
+            What you'll find here
+          </h2>
+          <ul className="space-y-3 text-base text-foreground/85 leading-relaxed">
+            <li className="flex gap-3">
+              <span className="text-primary mt-1.5 flex-shrink-0">&bull;</span>
+              <span>A curated collection of Adobe Experience Platform terms with plain-English definitions.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-primary mt-1.5 flex-shrink-0">&bull;</span>
+              <span>A clear distinction between current and legacy <em>AdobeSpeak</em>, so you can map old names to new ones.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-primary mt-1.5 flex-shrink-0">&bull;</span>
+              <span>Category-based organization for navigating by capability rather than alphabetically.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-primary mt-1.5 flex-shrink-0">&bull;</span>
+              <span>A community voting signal on every term so the most accurate definitions surface first.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-primary mt-1.5 flex-shrink-0">&bull;</span>
+              <span>Export to PDF for offline reference.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-primary mt-1.5 flex-shrink-0">&bull;</span>
+              <span>An open contribution model &mdash; sign in with Google to submit a new term or refine an existing one.</span>
+            </li>
           </ul>
-          
-          <h2 className="text-2xl font-semibold text-gray-900 mt-10 mb-4">Contact</h2>
-          <p className="text-lg text-gray-700 leading-relaxed mb-6">
-            For questions, feedback, or suggestions, please connect with us on LinkedIn.
+        </section>
+
+        <section className="mb-12">
+          <h2 className="font-display text-2xl md:text-3xl text-foreground mb-4" style={{ fontWeight: 500, letterSpacing: "-0.015em" }}>
+            Contact
+          </h2>
+          <p className="text-base text-foreground/85 leading-relaxed mb-4">
+            Questions, corrections, or suggestions are welcome. The fastest way to
+            reach me is on LinkedIn.
           </p>
-          
-          <div className="mt-8 p-5 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="text-xl font-semibold text-blue-800 mb-3">Visit Us Online</h3>
-            <p className="text-gray-700 mb-2">
-              Our official website: <a href="https://lexiconaep.com" className="text-blue-600 hover:text-blue-800 font-semibold">https://lexiconaep.com</a>
-            </p>
-            <p className="text-sm text-gray-600">
-              Adobe AEP Lexicon is the go-to resource for Adobe Experience Platform terminology.
-            </p>
-          </div>
-        </div>
+          <a
+            href="https://www.linkedin.com/in/barrymann/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-business btn-business-secondary inline-flex items-center text-sm"
+          >
+            <Linkedin className="h-4 w-4 mr-2" />
+            Barry Mann on LinkedIn
+            <ExternalLink className="h-3 w-3 ml-2 opacity-60" />
+          </a>
+        </section>
+
+        <section className="mt-16 pt-8 border-t border-border">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.18em] mb-3">
+            Site
+          </p>
+          <p className="text-base text-foreground/85 leading-relaxed">
+            Live at{" "}
+            <a
+              href="https://lexiconaep.barrymann.com/"
+              className="text-primary hover:text-accent"
+            >
+              lexiconaep.barrymann.com
+            </a>
+            .
+          </p>
+        </section>
       </div>
     </Layout>
   );

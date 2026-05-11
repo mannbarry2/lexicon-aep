@@ -12,7 +12,7 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   // Determine if we're in production
-  const isProduction = window.location.hostname === 'lexiconaep.com';
+  const isProduction = window.location.hostname === 'lexiconaep.barrymann.com';
   
   return (
     <div className="min-h-screen bg-background flex flex-col">

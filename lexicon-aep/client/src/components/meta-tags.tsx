@@ -18,7 +18,7 @@ export function MetaTags({
   twitterCard = 'summary'
 }: MetaTagsProps) {
   const siteName = 'Adobe AEP Lexicon';
-  const domain = 'lexiconaep.com';
+  const domain = 'lexiconaep.barrymann.com';
   const fullTitle = `${title} | ${siteName}`;
   
   return (

@@ -22,7 +22,7 @@ function ImageWithFallback({ src, alt, className, filename, firebaseUrl }: Image
   const [loaded, setLoaded] = useState(false);
   
   // Check if we're in development or production
-  const isProduction = window.location.hostname === 'lexiconaep.com';
+  const isProduction = window.location.hostname === 'lexiconaep.barrymann.com';
   
   // First try to use Firebase URL if available
   // Firebase Storage URLs are absolute and should work in any environment

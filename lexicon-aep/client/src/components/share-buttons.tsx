@@ -18,9 +18,9 @@ export function ShareButtons({ title, url, description, className = '' }: ShareB
   const urlParts = url.split('/');
   const slug = urlParts[urlParts.length - 1];
   
-  // Always use production domain (lexiconaep.com) for social media sharing
+  // Always use production domain (lexiconaep.barrymann.com) for social media sharing
   // For LinkedIn, NEVER use the social-preview URLs - they must point to the actual term page
-  const productionUrl = `https://lexiconaep.com/term/${slug}`;
+  const productionUrl = `https://lexiconaep.barrymann.com/term/${slug}`;
   
   // LinkedIn needs to directly scrape the actual page, not any preview or redirect
   const encodedTitle = encodeURIComponent(title);

@@ -229,7 +229,7 @@ export default function TermDetail() {
 
   // Create canonical and image URLs for metadata
   // Always use production URL for LinkedIn sharing
-  const productionBaseUrl = "https://lexiconaep.com";
+  const productionBaseUrl = "https://lexiconaep.barrymann.com";
   const canonicalUrl = `${productionBaseUrl}/term/${term.slug}`;
   
   // Prepare image URL - LinkedIn requires absolute URLs
