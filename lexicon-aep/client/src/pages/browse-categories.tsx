@@ -158,7 +158,18 @@ export default function BrowseCategories() {
                     </div>
                     
                     <h3 className="mt-3 text-lg font-medium text-gray-900">{term.name}</h3>
-                    <p className="mt-2 text-sm text-gray-600 truncate-3-lines">{term.definition}</p>
+                    <p className="mt-2 text-sm text-gray-600 truncate-3-lines">
+                      {term.definition
+                        .replace(/<[^>]+>/g, " ")
+                        .replace(/&nbsp;/g, " ")
+                        .replace(/&amp;/g, "&")
+                        .replace(/&lt;/g, "<")
+                        .replace(/&gt;/g, ">")
+                        .replace(/&quot;/g, '"')
+                        .replace(/&#39;/g, "'")
+                        .replace(/\s+/g, " ")
+                        .trim()}
+                    </p>
                     
                     {/* Voting buttons */}
                     <div className="mt-4 flex items-center">

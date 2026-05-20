@@ -98,10 +98,18 @@ export function TermCard({ term }: TermCardProps) {
         <h3 className="font-display text-xl text-foreground" style={{ fontWeight: 500, letterSpacing: "-0.015em" }}>
           {term.name}
         </h3>
-        <div
-          className="mt-2 text-sm text-muted-foreground truncate-3-lines leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: term.definition }}
-        />
+        <p className="mt-2 text-sm text-muted-foreground truncate-3-lines leading-relaxed">
+          {term.definition
+            .replace(/<[^>]+>/g, " ")
+            .replace(/&nbsp;/g, " ")
+            .replace(/&amp;/g, "&")
+            .replace(/&lt;/g, "<")
+            .replace(/&gt;/g, ">")
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/\s+/g, " ")
+            .trim()}
+        </p>
 
         {/* Voting buttons */}
         <div className="mt-4 flex items-center">
