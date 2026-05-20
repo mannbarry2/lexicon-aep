@@ -518,7 +518,7 @@ function EditTermDialog({ term, categories, terms, isOpen, onOpenChange, onDelet
                       <Switch
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="data-[state=checked]:bg-[#0E76A8]"
+                        className="data-[state=checked]:bg-[#2563eb]"
                       />
                     </FormControl>
                   </FormItem>
@@ -607,7 +607,7 @@ function EditTermDialog({ term, categories, terms, isOpen, onOpenChange, onDelet
                           form.trigger("categories");
                         }}
                       >
-                        <div className={`h-5 w-5 rounded border flex items-center justify-center ${isSelected ? 'bg-[#0E76A8] border-[#0E76A8]' : 'border-gray-300'}`}>
+                        <div className={`h-5 w-5 rounded border flex items-center justify-center ${isSelected ? 'bg-[#2563eb] border-[#2563eb]' : 'border-gray-300'}`}>
                           {isSelected && (
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="w-4 h-4">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -628,7 +628,7 @@ function EditTermDialog({ term, categories, terms, isOpen, onOpenChange, onDelet
                   <div className="flex flex-wrap gap-2">
                     {(form.getValues("categories") || []).length > 0 ? (
                       (form.getValues("categories") || []).map((cat, i) => (
-                        <span key={i} className="px-2 py-1 bg-[#0E76A8] text-white rounded-full text-sm font-medium">
+                        <span key={i} className="px-2 py-1 bg-[#2563eb] text-white rounded-full text-sm font-medium">
                           {cat}
                         </span>
                       ))
@@ -663,7 +663,7 @@ function EditTermDialog({ term, categories, terms, isOpen, onOpenChange, onDelet
                   <Button
                     type="submit"
                     disabled={isUpdating}
-                    className="bg-[#0E76A8] hover:bg-[#0E76A8]/90 text-white px-4 py-2 rounded-md"
+                    className="bg-[#2563eb] hover:bg-[#2563eb]/90 text-white px-4 py-2 rounded-md"
                   >
                     {isUpdating && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -378,7 +378,7 @@ export default function AddWord() {
                               <Switch
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
-                                className="data-[state=checked]:bg-[#0E76A8]"
+                                className="data-[state=checked]:bg-[#2563eb]"
                               />
                             </FormControl>
                           </FormItem>
@@ -469,7 +469,7 @@ export default function AddWord() {
                                   form.trigger("categories");
                                 }}
                               >
-                                <div className={`h-5 w-5 rounded border flex items-center justify-center ${isSelected ? 'border-[#0E76A8]' : 'border-gray-300'}`} style={{ backgroundColor: isSelected ? '#0E76A8' : 'transparent' }}>
+                                <div className={`h-5 w-5 rounded border flex items-center justify-center ${isSelected ? 'border-[#2563eb]' : 'border-gray-300'}`} style={{ backgroundColor: isSelected ? '#2563eb' : 'transparent' }}>
                                   {isSelected && (
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="w-4 h-4">
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -492,7 +492,7 @@ export default function AddWord() {
                                 <span 
                                   key={index} 
                                   className="px-2 py-1 text-white rounded-full text-sm font-medium"
-                                  style={{ backgroundColor: "#0E76A8" }}
+                                  style={{ backgroundColor: "#2563eb" }}
                                 >
                                   {cat}
                                 </span>
@@ -562,7 +562,7 @@ export default function AddWord() {
                     onClick={form.handleSubmit(onSubmit)}
                     disabled={isAddingTerm}
                     className="w-full sm:w-auto text-white px-8 py-3 rounded-md text-base font-medium shadow-md"
-                    style={{ backgroundColor: "#0E76A8", borderColor: "#0E76A8" }}
+                    style={{ backgroundColor: "#2563eb", borderColor: "#2563eb" }}
                   >
                     {isAddingTerm && (
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -599,7 +599,7 @@ export default function AddWord() {
                     onClick={handleAddCategory}
                     disabled={!newCategory.trim() || isAddingCategory}
                     className="w-full text-white px-6 py-3 rounded-md text-base font-medium shadow-md"
-                    style={{ backgroundColor: "#0E76A8", borderColor: "#0E76A8" }}
+                    style={{ backgroundColor: "#2563eb", borderColor: "#2563eb" }}
                   >
                     {isAddingCategory && (
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -626,7 +626,7 @@ export default function AddWord() {
                           <div
                             key={category.id}
                             className="text-white px-3 py-1 rounded-full text-sm"
-                            style={{ backgroundColor: "#0E76A8" }}
+                            style={{ backgroundColor: "#2563eb" }}
                           >
                             {category.name}
                           </div>

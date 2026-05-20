@@ -170,7 +170,7 @@ export default function FeedbackSurvey() {
               <Button 
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0"
+                className="bg-[#2563eb] text-white hover:bg-[#2563eb]/90 border-0"
               >
                 {isSubmitting ? "Submitting..." : "Submit Feedback"}
               </Button>
@@ -180,7 +180,7 @@ export default function FeedbackSurvey() {
           <div className="flex justify-center">
             <Button 
               onClick={handleClose}
-              className="bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0"
+              className="bg-[#2563eb] text-white hover:bg-[#2563eb]/90 border-0"
             >
               Close
             </Button>

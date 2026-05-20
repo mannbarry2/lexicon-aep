@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Menu, Search, BookText, FolderPlus, BookMarked, Info, Settings, ShieldAlert } from 'lucide-react';
+import { Menu, Search, BookText, FolderPlus, BookMarked, Settings, ShieldAlert } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -231,16 +231,6 @@ export function Header() {
                   );
                 })}
                 
-                <Link href="/about">
-                  <Button 
-                    className="bg-primary hover:bg-primary/90 text-white flex items-center gap-1 rounded-md font-display"
-                    size="sm"
-                  >
-                    <Info className="h-4 w-4" />
-                    About
-                  </Button>
-                </Link>
-                
                 {/* Login Button */}
                 <LoginButton />
               </nav>
@@ -351,14 +341,6 @@ export function Header() {
                       );
                     })}
                     
-                    <Link
-                      href="/about"
-                      onClick={() => setOpen(false)}
-                      className="px-3 py-2 rounded-md text-base font-medium flex items-center mt-2 bg-primary text-white font-display"
-                    >
-                      <Info className="mr-2 h-5 w-5" />
-                      About
-                    </Link>
                   </nav>
                 </SheetContent>
               </Sheet>

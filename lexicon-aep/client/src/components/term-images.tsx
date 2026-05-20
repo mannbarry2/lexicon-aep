@@ -292,7 +292,7 @@ export function TermImages({ termId, images, isAdmin, isLoggedIn }: TermImagesPr
         {isLoggedIn && (
           <Button
             onClick={() => setUploadDialogOpen(true)}
-            className="bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0"
+            className="bg-[#2563eb] text-white hover:bg-[#2563eb]/90 border-0"
             size="sm"
           >
             <Upload className="mr-2 h-4 w-4" />
@@ -484,7 +484,7 @@ export function TermImages({ termId, images, isAdmin, isLoggedIn }: TermImagesPr
               <Button 
                 type="submit" 
                 disabled={!imageFile || isUploading}
-                className="bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0"
+                className="bg-[#2563eb] text-white hover:bg-[#2563eb]/90 border-0"
               >
                 {isUploading ? "Uploading..." : "Upload Image"}
               </Button>
@@ -537,7 +537,7 @@ export function TermImages({ termId, images, isAdmin, isLoggedIn }: TermImagesPr
               </DialogClose>
               <Button 
                 type="submit" 
-                className="bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0"
+                className="bg-[#2563eb] text-white hover:bg-[#2563eb]/90 border-0"
               >
                 Save Caption
               </Button>

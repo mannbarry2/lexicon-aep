@@ -105,7 +105,7 @@ export function LoginButton() {
   return (
     <Button 
       size="sm" 
-      className="bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0"
+      className="bg-[#2563eb] text-white hover:bg-[#2563eb]/90 border-0"
       onClick={handleSignIn} 
       disabled={isSigningIn}
     >

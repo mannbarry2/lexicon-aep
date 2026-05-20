@@ -3,9 +3,9 @@
  */
 export const termLinkCSS = `
   .term-link {
-    color: #0E76A8;
+    color: #2563eb;
     text-decoration: none;
-    border-bottom: 1px dotted #0E76A8;
+    border-bottom: 1px dotted #2563eb;
     padding-bottom: 1px;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
@@ -71,7 +71,7 @@ export const termLinkCSS = `
   }
   
   .ql-term-link:hover {
-    color: #0E76A8;
+    color: #2563eb;
   }
 `;
 

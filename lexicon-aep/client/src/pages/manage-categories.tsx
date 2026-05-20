@@ -199,7 +199,7 @@ export default function ManageCategories() {
           <h1 className="text-2xl font-bold">Manage Categories</h1>
           <Button 
             onClick={handleAddDialogOpen}
-            style={{ backgroundColor: "#0E76A8", borderColor: "#0E76A8" }}
+            style={{ backgroundColor: "#2563eb", borderColor: "#2563eb" }}
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Category
@@ -306,7 +306,7 @@ export default function ManageCategories() {
                   <Button 
                     type="submit"
                     disabled={addCategoryMutation.isPending}
-                    style={{ backgroundColor: "#0E76A8", borderColor: "#0E76A8" }}
+                    style={{ backgroundColor: "#2563eb", borderColor: "#2563eb" }}
                   >
                     {addCategoryMutation.isPending && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -354,7 +354,7 @@ export default function ManageCategories() {
                   <Button 
                     type="submit"
                     disabled={updateCategoryMutation.isPending}
-                    style={{ backgroundColor: "#0E76A8", borderColor: "#0E76A8" }}
+                    style={{ backgroundColor: "#2563eb", borderColor: "#2563eb" }}
                   >
                     {updateCategoryMutation.isPending && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

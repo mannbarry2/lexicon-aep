@@ -197,7 +197,7 @@ export default function TermDetail() {
               <Button
                 variant="outline"
                 onClick={() => window.history.back()}
-                className="bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0"
+                className="bg-[#2563eb] text-white hover:bg-[#2563eb]/90 border-0"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
@@ -309,7 +309,7 @@ export default function TermDetail() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
             <Button
-              className="bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0"
+              className="bg-[#2563eb] text-white hover:bg-[#2563eb]/90 border-0"
               onClick={() => window.history.back()}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -343,7 +343,7 @@ export default function TermDetail() {
                 </div>
                 {isLoggedIn ? (
                   <Button
-                    className="bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0"
+                    className="bg-[#2563eb] text-white hover:bg-[#2563eb]/90 border-0"
                     size="sm"
                     onClick={handleEdit}
                   >
@@ -419,7 +419,7 @@ export default function TermDetail() {
                   </h3>
                   <a 
                     href={`/term/${term.currentTerm.slug}`}
-                    className="mt-2 inline-flex items-center bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 rounded-md px-3 py-1.5 text-sm"
+                    className="mt-2 inline-flex items-center bg-[#2563eb] text-white hover:bg-[#2563eb]/90 rounded-md px-3 py-1.5 text-sm"
                     onClick={(e) => {
                       e.preventDefault();
                       setLocation(`/term/${term.currentTerm!.slug}`);
@@ -441,7 +441,7 @@ export default function TermDetail() {
                       <a 
                         key={legacy.id}
                         href={`/term/${legacy.slug}`}
-                        className="inline-flex items-center bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 rounded-md px-3 py-1.5 text-sm"
+                        className="inline-flex items-center bg-[#2563eb] text-white hover:bg-[#2563eb]/90 rounded-md px-3 py-1.5 text-sm"
                         onClick={(e) => {
                           e.preventDefault();
                           setLocation(`/term/${legacy.slug}`);

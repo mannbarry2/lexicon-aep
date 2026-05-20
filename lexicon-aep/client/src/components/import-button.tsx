@@ -396,7 +396,7 @@ export function ImportButton({ className, onImportComplete }: ImportButtonProps)
                       <Button
                         type="button"
                         variant="default"
-                        className="bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0"
+                        className="bg-[#2563eb] text-white hover:bg-[#2563eb]/90 border-0"
                         onClick={handleConfirmImport}
                       >
                         Proceed
@@ -410,7 +410,7 @@ export function ImportButton({ className, onImportComplete }: ImportButtonProps)
                         variant="default"
                         className={importResult.isError 
                           ? "bg-red-600 text-white hover:bg-red-700 border-0 font-medium text-base px-6" 
-                          : "bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0 font-medium text-base px-6"
+                          : "bg-[#2563eb] text-white hover:bg-[#2563eb]/90 border-0 font-medium text-base px-6"
                         }
                         onClick={handleCancelImport}
                       >

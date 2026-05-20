@@ -48,7 +48,7 @@ export function Toaster() {
                 }}
                 className={isError 
                   ? "bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded"
-                  : "bg-[#0E76A8] hover:bg-[#0E76A8]/90 text-white text-xs px-3 py-1 rounded"
+                  : "bg-[#2563eb] hover:bg-[#2563eb]/90 text-white text-xs px-3 py-1 rounded"
                 }
               >
                 {isError ? "Acknowledge" : "Dismiss"}

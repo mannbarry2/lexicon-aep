@@ -5,9 +5,10 @@ export default {
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     fontFamily: {
-      sans: ['Inter', 'system-ui', 'sans-serif'],
-      display: ['Fraunces', 'Georgia', 'serif'],
-      serif: ['Fraunces', 'Georgia', 'serif'],
+      sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+      display: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+      mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+      serif: ['ui-serif', 'Georgia', 'serif'],
     },
     extend: {
       borderRadius: {

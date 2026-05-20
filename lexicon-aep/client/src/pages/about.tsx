@@ -1,5 +1,4 @@
 import { Layout } from "@/components/layout";
-import { Linkedin, ExternalLink } from "lucide-react";
 
 export default function About() {
   return (
@@ -71,41 +70,6 @@ export default function About() {
           </ul>
         </section>
 
-        <section className="mb-12">
-          <h2 className="font-display text-2xl md:text-3xl text-foreground mb-4" style={{ fontWeight: 500, letterSpacing: "-0.015em" }}>
-            Contact
-          </h2>
-          <p className="text-base text-foreground/85 leading-relaxed mb-4">
-            Questions, corrections, or suggestions are welcome. The fastest way to
-            reach me is on LinkedIn.
-          </p>
-          <a
-            href="https://www.linkedin.com/in/barrymann/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-business btn-business-secondary inline-flex items-center text-sm"
-          >
-            <Linkedin className="h-4 w-4 mr-2" />
-            Barry Mann on LinkedIn
-            <ExternalLink className="h-3 w-3 ml-2 opacity-60" />
-          </a>
-        </section>
-
-        <section className="mt-16 pt-8 border-t border-border">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.18em] mb-3">
-            Site
-          </p>
-          <p className="text-base text-foreground/85 leading-relaxed">
-            Live at{" "}
-            <a
-              href="https://lexiconaep.barrymann.com/"
-              className="text-primary hover:text-accent"
-            >
-              lexiconaep.barrymann.com
-            </a>
-            .
-          </p>
-        </section>
       </div>
     </Layout>
   );

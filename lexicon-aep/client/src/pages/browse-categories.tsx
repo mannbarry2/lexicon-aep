@@ -263,7 +263,7 @@ export default function BrowseCategories() {
                   <TabsTrigger
                     value="all"
                     className={cn(
-                      "rounded-full px-4 py-2 bg-gray-100 hover:bg-gray-200 data-[state=active]:text-white data-[state=active]:bg-[#0E76A8]"
+                      "rounded-full px-4 py-2 bg-gray-100 hover:bg-gray-200 data-[state=active]:text-white data-[state=active]:bg-[#2563eb]"
                     )}
                   >
                     All Categories
@@ -273,7 +273,7 @@ export default function BrowseCategories() {
                       key={category.id}
                       value={String(category.id)}
                       className={cn(
-                        "rounded-full px-4 py-2 bg-gray-100 hover:bg-gray-200 data-[state=active]:text-white data-[state=active]:bg-[#0E76A8]"
+                        "rounded-full px-4 py-2 bg-gray-100 hover:bg-gray-200 data-[state=active]:text-white data-[state=active]:bg-[#2563eb]"
                       )}
                     >
                       {category.name}

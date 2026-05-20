@@ -105,7 +105,7 @@ export function ShareButtons({ title, url, description, className = '' }: ShareB
           <Button
             variant="outline"
             size="icon"
-            className="h-9 w-9 rounded-full bg-[#0E76A8] hover:bg-[#0E76A8]/90 text-white border-0"
+            className="h-9 w-9 rounded-full bg-[#2563eb] hover:bg-[#2563eb]/90 text-white border-0"
             onClick={() => window.open(emailUrl, '_blank')}
           >
             <Mail className="h-4 w-4" />

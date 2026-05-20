@@ -56,7 +56,7 @@ export function ErrorDialog({
         <DialogFooter className="sm:justify-end">
           <Button
             type="button"
-            className="bg-[#0E76A8] hover:bg-[#0E76A8]/90 text-white"
+            className="bg-[#2563eb] hover:bg-[#2563eb]/90 text-white"
             onClick={handleClose}
           >
             Dismiss

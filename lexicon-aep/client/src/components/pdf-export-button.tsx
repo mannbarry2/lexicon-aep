@@ -46,7 +46,7 @@ export function PDFExportButton({ className }: PDFExportButtonProps) {
       onClick={handleExport}
       variant="outline"
       size="sm"
-      className={cn("bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0", className)}
+      className={cn("bg-[#2563eb] text-white hover:bg-[#2563eb]/90 border-0", className)}
       disabled={isExporting}
     >
       <FileText className="h-4 w-4 mr-2" />
