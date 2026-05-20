@@ -1,0 +1,30 @@
+name: Keep Warm
+
+on:
+  schedule:
+    # Every 5 minutes. GitHub Actions cron can drift by up to ~15 minutes
+    # under load, which is fine — we just need a fairly regular pulse to
+    # keep the Firebase App Hosting container alive and the Neon serverless
+    # DB out of its 5-minute hibernate window.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping /api/categories
+        run: |
+          for attempt in 1 2 3; do
+            status=$(curl -s -o /dev/null -w "%{http_code} in %{time_total}s" \
+              --max-time 60 \
+              https://lexiconaep.barrymann.com/api/categories)
+            echo "attempt $attempt: $status"
+            if echo "$status" | grep -q '^200'; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "All attempts failed — site may be down."
+          exit 1
