@@ -16,34 +16,16 @@ export function Layout({ children }: LayoutProps) {
   
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Tealium script - only included in production */}
+      {/* Google Tag Manager - only included in production */}
       {isProduction && (
         <Helmet>
           <script type="text/javascript">
           {`
-            var utag_data = {
-              iq_event_id : "", // A system variable that contains the ID of an iQ event and used to fire a tag when an event happens.
-              tealium_event : "", // Contains the Tealium event.
-              site_name : "", // Contains the site's name.
-              site_description : "", // Contains the site's description.
-              post_title : "", // Contains the post's title.
-              post_category : "", // Contains the post's category, e.g. 'technology'.
-              post_tags : "", // Contains the post tags, e.g. 'tag management'.
-              post_author : "", // Contains the post author.
-              post_date : "", // Contains the post date.
-              page_type : "", // Contains the page type, e.g. 'archive', 'homepage', or 'search'.
-              search_query : "", // Contains the search query conducted by user.
-              search_results : "" // Contains the number of search results returned.
-            }
-          `}
-          </script>
-          <script type="text/javascript">
-          {`
-            (function(a,b,c,d){
-            a='https://tags.tiqcdn.com/utag/zellera-sandbox/lexiconaep/prod/utag.js';
-            b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
-            a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
-            })();
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-MLVBBLZ4');
           `}
           </script>
         </Helmet>
