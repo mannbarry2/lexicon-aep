@@ -88,11 +88,19 @@ const requireAdmin = async (req: Request, res: Response, next: Function) => {
   if (!req.user) {
     return res.status(401).json({ message: "Authentication required" });
   }
-  
+
   if (!req.user.isAdmin) {
     return res.status(403).json({ message: "Admin privileges required" });
   }
-  
+
+  next();
+};
+
+// Auth middleware - allows any signed-in user
+const requireAuth = async (req: Request, res: Response, next: Function) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Authentication required" });
+  }
   next();
 };
 
@@ -178,13 +186,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/categories", validateBody(insertCategorySchema), async (req, res) => {
+  app.post("/api/categories", requireAdmin, validateBody(insertCategorySchema), async (req, res) => {
     try {
-      // Only mannbarry2@gmail.com can add categories
-      if (!req.user || req.user.email !== 'mannbarry2@gmail.com') {
-        return res.status(403).json({ message: "Only mannbarry2@gmail.com can manage categories" });
-      }
-      
       // Check if category already exists
       const existingCategory = await storage.getCategoryByName(req.body.name);
       if (existingCategory) {
@@ -200,13 +203,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Update category
-  app.patch("/api/categories/:id", validateBody(insertCategorySchema), async (req, res) => {
+  app.patch("/api/categories/:id", requireAdmin, validateBody(insertCategorySchema), async (req, res) => {
     try {
-      // Only mannbarry2@gmail.com can update categories
-      if (!req.user || req.user.email !== 'mannbarry2@gmail.com') {
-        return res.status(403).json({ message: "Only mannbarry2@gmail.com can manage categories" });
-      }
-      
       const categoryId = parseInt(req.params.id);
       if (isNaN(categoryId)) {
         return res.status(400).json({ message: "Invalid category ID" });
@@ -242,13 +240,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Delete category
-  app.delete("/api/categories/:id", async (req, res) => {
+  app.delete("/api/categories/:id", requireAdmin, async (req, res) => {
     try {
-      // Only mannbarry2@gmail.com can delete categories
-      if (!req.user || req.user.email !== 'mannbarry2@gmail.com') {
-        return res.status(403).json({ message: "Only mannbarry2@gmail.com can manage categories" });
-      }
-      
       const categoryId = parseInt(req.params.id);
       if (isNaN(categoryId)) {
         return res.status(400).json({ message: "Invalid category ID" });
@@ -1308,8 +1301,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Image upload endpoint with Firebase Storage
-  app.post("/api/terms/:id/images", upload.single('image'), async (req, res) => {
+  // Image upload endpoint with Firebase Storage (requires login)
+  app.post("/api/terms/:id/images", requireAuth, upload.single('image'), async (req, res) => {
     try {
       const termId = parseInt(req.params.id);
       if (isNaN(termId)) {
@@ -1400,8 +1393,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update image caption
-  app.patch("/api/images/:id/caption", async (req, res) => {
+  // Update image caption (requires login)
+  app.patch("/api/images/:id/caption", requireAuth, async (req, res) => {
     try {
       const imageId = parseInt(req.params.id);
       if (isNaN(imageId)) {
@@ -1426,8 +1419,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Delete image endpoint with Firebase Storage support
-  app.delete("/api/images/:id", async (req, res) => {
+  // Delete image endpoint with Firebase Storage support (admin only)
+  app.delete("/api/images/:id", requireAdmin, async (req, res) => {
     try {
       const imageId = parseInt(req.params.id);
       if (isNaN(imageId)) {

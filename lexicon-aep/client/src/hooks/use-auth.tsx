@@ -8,6 +8,7 @@ export const useAuth = () => {
   return {
     user: fb.currentUser,
     isAdmin: fb.isAdmin,
+    isLoggedIn: !!fb.currentUser,
     isLoading: fb.isLoading,
     signIn: fb.googleSignIn,
     signOut: fb.logOut,

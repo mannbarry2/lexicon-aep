@@ -19,38 +19,44 @@ export function Sidebar() {
       href: "/categories",
       icon: Tag,
       active: location === "/categories" || location === "/",
+      adminOnly: false,
     },
     {
       name: "Add Word",
       href: "/add-word",
       icon: PlusCircle,
       active: location === "/add-word",
+      adminOnly: false,
     },
     {
       name: "Edit Meaning",
       href: "/edit-meaning",
       icon: Edit,
       active: location === "/edit-meaning",
+      adminOnly: false,
     },
     {
       name: "Manage Categories",
       href: "/manage-categories",
       icon: Settings,
       active: location === "/manage-categories",
+      adminOnly: true,
     },
     {
       name: "Image Management",
       href: "/images",
       icon: Image,
       active: location === "/images",
+      adminOnly: true,
     },
     {
       name: "Admin Only",
       href: "/admin",
       icon: ShieldAlert,
       active: location === "/admin",
+      adminOnly: true,
     },
-  ];
+  ].filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <div className="flex flex-col flex-grow bg-white border-r border-gray-200">
@@ -139,38 +145,44 @@ export function MobileNavigation() {
       href: "/categories",
       icon: Tag,
       active: location === "/categories" || location === "/",
+      adminOnly: false,
     },
     {
       name: "Add Word",
       href: "/add-word",
       icon: PlusCircle,
       active: location === "/add-word",
+      adminOnly: false,
     },
     {
       name: "Edit Meaning",
       href: "/edit-meaning",
       icon: Edit,
       active: location === "/edit-meaning",
+      adminOnly: false,
     },
     {
       name: "Manage Categories",
       href: "/manage-categories",
       icon: Settings,
       active: location === "/manage-categories",
+      adminOnly: true,
     },
     {
       name: "Image Management",
       href: "/images",
       icon: Image,
       active: location === "/images",
+      adminOnly: true,
     },
     {
       name: "Admin Only",
       href: "/admin",
       icon: ShieldAlert,
       active: location === "/admin",
+      adminOnly: true,
     },
-  ];
+  ].filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <div className="sticky top-0 z-10 w-full">

@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { auth } from "@/lib/firebase";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Upload, Image as ImageIcon, X, Pencil, ZoomIn, AlertTriangle } from "lucide-react";
+import { Trash2, Upload, Image as ImageIcon, X, Pencil, ZoomIn, AlertTriangle, Lock } from "lucide-react";
+import { FaGoogle } from "react-icons/fa";
 
 // Component to handle image display with error fallback
 interface ImageWithFallbackProps {
@@ -102,10 +105,12 @@ interface TermImagesProps {
   termId: number;
   images: ImageType[];
   isAdmin: boolean;
+  isLoggedIn: boolean;
 }
 
-export function TermImages({ termId, images, isAdmin }: TermImagesProps) {
+export function TermImages({ termId, images, isAdmin, isLoggedIn }: TermImagesProps) {
   const { toast } = useToast();
+  const { signIn } = useAuth();
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [captionDialogOpen, setCaptionDialogOpen] = useState(false);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
@@ -129,10 +134,16 @@ export function TermImages({ termId, images, isAdmin }: TermImagesProps) {
         formData.append("caption", imageCaption);
       }
 
+      const headers: Record<string, string> = {};
+      const user = auth.currentUser;
+      if (user) {
+        headers.Authorization = `Bearer ${await user.getIdToken()}`;
+      }
+
       const response = await fetch(`/api/terms/${termId}/images`, {
         method: "POST",
+        headers,
         body: formData,
-        // Do not set Content-Type header for FormData
       });
 
       if (!response.ok) {
@@ -270,16 +281,16 @@ export function TermImages({ termId, images, isAdmin }: TermImagesProps) {
     setImageViewerOpen(true);
   };
 
-  if (images.length === 0 && !isAdmin) {
-    return null; // Don't show the section if there are no images and user is not admin
+  if (images.length === 0 && !isLoggedIn) {
+    return null; // Anonymous users with no images on this term see nothing.
   }
 
   return (
     <div className="mt-8 pt-6 border-t border-gray-200">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Images</h3>
-        {isAdmin && (
-          <Button 
+        {isLoggedIn && (
+          <Button
             onClick={() => setUploadDialogOpen(true)}
             className="bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0"
             size="sm"
@@ -298,40 +309,60 @@ export function TermImages({ termId, images, isAdmin }: TermImagesProps) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {images.map((image) => (
-            <div 
-              key={image.id} 
+            <div
+              key={image.id}
               className="group relative bg-white rounded-md border border-gray-200 overflow-hidden"
             >
-              <div className="aspect-w-4 aspect-h-3">
-                <ImageWithFallback 
-                  src={`/uploads/${image.filename}`} 
+              <div className="aspect-w-4 aspect-h-3 relative">
+                <ImageWithFallback
+                  src={`/uploads/${image.filename}`}
                   alt={image.caption || image.originalName}
-                  className="object-cover w-full h-full"
+                  className={`object-cover w-full h-full ${!isLoggedIn ? "blur-lg scale-110" : ""}`}
                   filename={image.filename}
                   firebaseUrl={image.firebaseUrl}
                 />
-                {/* View larger button (appears on hover) */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
-                  <Button 
-                    variant="secondary"
-                    size="sm"
-                    className="bg-white hover:bg-gray-100 text-gray-800"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleViewImage(image);
-                    }}
-                  >
-                    <ZoomIn className="mr-2 h-4 w-4" />
-                    View Larger
-                  </Button>
-                </div>
+                {isLoggedIn ? (
+                  /* View larger button (appears on hover) */
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="bg-white hover:bg-gray-100 text-gray-800"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewImage(image);
+                      }}
+                    >
+                      <ZoomIn className="mr-2 h-4 w-4" />
+                      View Larger
+                    </Button>
+                  </div>
+                ) : (
+                  /* Login gate overlay for anonymous users */
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 text-white p-4 text-center">
+                    <Lock className="h-6 w-6 mb-2" />
+                    <p className="text-sm font-medium mb-3">Log in to view images</p>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="bg-white hover:bg-gray-100 text-gray-800"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        signIn();
+                      }}
+                    >
+                      <FaGoogle className="mr-2 h-4 w-4" />
+                      Sign in
+                    </Button>
+                  </div>
+                )}
               </div>
-              {image.caption && (
+              {image.caption && isLoggedIn && (
                 <div className="p-2 bg-white border-t border-gray-200">
                   <p className="text-sm text-gray-600">{image.caption}</p>
                 </div>
               )}
-              {isAdmin && (
+              {isLoggedIn && (
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
                   <Button
                     size="icon"
@@ -344,35 +375,37 @@ export function TermImages({ termId, images, isAdmin }: TermImagesProps) {
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        className="h-8 w-8"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Image</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this image? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDeleteImage(image.id)}
-                          className="bg-red-600 hover:bg-red-700"
+                  {isAdmin && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="destructive"
+                          className="h-8 w-8"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Image</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this image? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteImage(image.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
                 </div>
               )}
             </div>

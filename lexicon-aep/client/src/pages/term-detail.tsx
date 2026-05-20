@@ -79,7 +79,7 @@ export default function TermDetail() {
   const [slugMatch, slugParams] = useRoute("/term/:slug");
   const [idMatch, idParams] = useRoute("/term/id/:id");
   const [, setLocation] = useLocation();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isLoggedIn } = useAuth();
   const { toast } = useToast();
   const [upvoteAnimation, setUpvoteAnimation] = useState(false);
   const [downvoteAnimation, setDownvoteAnimation] = useState(false);
@@ -438,10 +438,11 @@ export default function TermDetail() {
               
               {/* Images section */}
               {term.images && (
-                <TermImages 
-                  termId={term.id} 
-                  images={term.images || []} 
-                  isAdmin={isAdmin} 
+                <TermImages
+                  termId={term.id}
+                  images={term.images || []}
+                  isAdmin={isAdmin}
+                  isLoggedIn={isLoggedIn}
                 />
               )}
               

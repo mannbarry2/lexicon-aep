@@ -53,12 +53,20 @@ function App() {
           <Switch>
             <Route path="/" component={BrowseCategories} />
             <Route path="/categories" component={BrowseCategories} />
-            <Route path="/manage-categories" component={ManageCategories} />
+            <Route path="/manage-categories">
+              <ProtectedRoute adminOnly={true}>
+                <ManageCategories />
+              </ProtectedRoute>
+            </Route>
             <Route path="/add-word" component={AddWord} />
             <Route path="/edit-meaning" component={EditMeaning} />
             <Route path="/term/:slug" component={TermDetail} />
             <Route path="/term/id/:id" component={TermDetail} />
-            <Route path="/images" component={ImageManagement} />
+            <Route path="/images">
+              <ProtectedRoute adminOnly={true}>
+                <ImageManagement />
+              </ProtectedRoute>
+            </Route>
             <Route path="/about" component={About} />
             <Route path="/privacy" component={Privacy} />
             <Route path="/admin">
