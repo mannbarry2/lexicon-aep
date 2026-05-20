@@ -1031,7 +1031,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/terms", validateBody(createTermSchema), async (req, res) => {
+  app.post("/api/terms", requireAuth, validateBody(createTermSchema), async (req, res) => {
     try {
       // Check if a term with this name already exists
       const existingTerm = await storage.getTermByName(req.body.name);
@@ -1073,7 +1073,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/terms/:id", validateBody(updateTermSchema), async (req, res) => {
+  app.patch("/api/terms/:id", requireAuth, validateBody(updateTermSchema), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {

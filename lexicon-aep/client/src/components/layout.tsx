@@ -73,8 +73,8 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </div>
       
-      {/* Feedback Survey - will show up after 10 seconds if not already completed */}
-      <FeedbackSurvey />
+      {/* Feedback Survey - disabled for now (component preserved) */}
+      {/* <FeedbackSurvey /> */}
     </div>
   );
 }

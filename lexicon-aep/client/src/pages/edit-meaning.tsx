@@ -74,7 +74,7 @@ import {
 } from "@/components/ui/popover";
 
 export default function EditMeaning() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isLoggedIn } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
@@ -96,8 +96,8 @@ export default function EditMeaning() {
   const [editDialogOpen, setEditDialogOpen] = useState(!!termIdFromUrl);
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
   
-  // Redirect if not admin
-  if (!isAdmin) {
+  // Redirect non-logged-in users (anonymous can browse but not edit)
+  if (!isLoggedIn) {
     setLocation("/");
     return null;
   }
@@ -198,8 +198,8 @@ export default function EditMeaning() {
                         </CardDescription>
                       </CardHeader>
                       <CardFooter className="py-3 px-5 bg-gray-50 flex justify-end gap-2">
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => {
                             setSelectedTermId(term.id);
@@ -208,16 +208,18 @@ export default function EditMeaning() {
                         >
                           <Edit className="h-4 w-4 mr-1" /> Edit
                         </Button>
-                        <Button 
-                          variant="destructive" 
-                          size="sm"
-                          onClick={() => {
-                            setSelectedTermId(term.id);
-                            setDeleteAlertOpen(true);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 mr-1" /> Delete
-                        </Button>
+                        {isAdmin && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedTermId(term.id);
+                              setDeleteAlertOpen(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" /> Delete
+                          </Button>
+                        )}
                       </CardFooter>
                     </Card>
                   ))}
@@ -237,12 +239,17 @@ export default function EditMeaning() {
 
       {/* Edit Term Dialog */}
       {selectedTerm && (
-        <EditTermDialog 
+        <EditTermDialog
           term={selectedTerm}
           categories={categories}
           terms={terms}
           isOpen={editDialogOpen}
           onOpenChange={setEditDialogOpen}
+          onDelete={isAdmin ? () => {
+            setEditDialogOpen(false);
+            setSelectedTermId(selectedTerm.id);
+            setDeleteAlertOpen(true);
+          } : undefined}
         />
       )}
 
@@ -279,9 +286,10 @@ interface EditTermDialogProps {
   terms: {id: number, name: string}[];
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onDelete?: () => void;
 }
 
-function EditTermDialog({ term, categories, terms, isOpen, onOpenChange }: EditTermDialogProps) {
+function EditTermDialog({ term, categories, terms, isOpen, onOpenChange, onDelete }: EditTermDialogProps) {
   const { toast } = useToast();
   const [errorDialog, setErrorDialog] = useState({
     open: false,
@@ -631,25 +639,38 @@ function EditTermDialog({ term, categories, terms, isOpen, onOpenChange }: EditT
                 </div>
               </div>
 
-              <DialogFooter className="mt-8 pt-4 border-t flex items-center justify-end space-x-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                  className="px-4 py-2 rounded-md"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isUpdating}
-                  className="bg-[#0E76A8] hover:bg-[#0E76A8]/90 text-white px-4 py-2 rounded-md"
-                >
-                  {isUpdating && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Save Changes
-                </Button>
+              <DialogFooter className="mt-8 pt-4 border-t flex items-center justify-between gap-2 sm:justify-between">
+                {onDelete ? (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={onDelete}
+                    className="px-4 py-2 rounded-md"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Term
+                  </Button>
+                ) : <span />}
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => onOpenChange(false)}
+                    className="px-4 py-2 rounded-md"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isUpdating}
+                    className="bg-[#0E76A8] hover:bg-[#0E76A8]/90 text-white px-4 py-2 rounded-md"
+                  >
+                    {isUpdating && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Save Changes
+                  </Button>
+                </div>
               </DialogFooter>
             </form>
           </Form>

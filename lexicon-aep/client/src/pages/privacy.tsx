@@ -1,6 +1,17 @@
+import { useEffect } from "react";
 import { Layout } from "@/components/layout";
 
 export default function Privacy() {
+  useEffect(() => {
+    const container = document.getElementById("cookie-declaration");
+    if (!container || container.querySelector("script#CookieDeclaration")) return;
+    const s = document.createElement("script");
+    s.id = "CookieDeclaration";
+    s.src = "https://consent.cookiebot.com/634d26de-fd29-422f-a7fc-2048fecf7ed8/cd.js";
+    s.type = "text/javascript";
+    s.async = true;
+    container.appendChild(s);
+  }, []);
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -50,6 +61,9 @@ export default function Privacy() {
             Privacy Policy on this page and updating the "Last updated" date.
           </p>
           
+          <h2 className="text-2xl font-semibold text-gray-900 mt-10 mb-4">Cookie Declaration</h2>
+          <div id="cookie-declaration" className="mb-6" />
+
           <h2 className="text-2xl font-semibold text-gray-900 mt-10 mb-4">Contact Us</h2>
           <p className="text-lg text-gray-700 leading-relaxed mb-6">
             If you have any questions about this Privacy Policy, please contact us via the LinkedIn profile linked in the footer.

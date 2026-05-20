@@ -9,6 +9,7 @@ import { useSearch } from '@/hooks/use-search';
 import { useQuery } from '@tanstack/react-query';
 import { LoginButton } from '@/components/login-button';
 import { useFirebaseAuth } from '@/hooks/use-firebase-auth';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   Command,
   CommandEmpty,
@@ -25,7 +26,8 @@ export function Header() {
   const { searchQuery, setSearchQuery, performSearch } = useSearch();
   const [searchInput, setSearchInput] = useState(searchQuery);
   const [searchOpen, setSearchOpen] = useState(false);
-  const { isAdmin } = useFirebaseAuth();
+  const { currentUser, isAdmin, googleSignIn } = useFirebaseAuth();
+  const isLoggedIn = !!currentUser;
   
   // Fetch terms for search suggestions
   const { data: terms = [] } = useQuery<{id: number, name: string, slug: string}[]>({
@@ -192,7 +194,31 @@ export function Header() {
                 {navItems.map((item) => {
                   // Skip "Admin Only" link if showing in main navigation (it's in the user dropdown now)
                   if (item.href === '/admin') return null;
-                  
+
+                  // Hide admin-only "Categories" link from non-admins
+                  if (item.href === '/manage-categories' && !isAdmin) return null;
+
+                  // "Add Term" requires login: show greyed with sign-in prompt for anon
+                  if (item.href === '/add-word' && !isLoggedIn) {
+                    return (
+                      <TooltipProvider key={item.href} delayDuration={150}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => googleSignIn()}
+                              className="flex items-center text-gray-400 hover:text-gray-600 font-medium cursor-pointer"
+                              aria-label="Sign in to add a term"
+                            >
+                              <item.icon className="mr-2 h-5 w-5" />
+                              <span>{item.name}</span>
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Sign in to add a term</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  }
+
                   return (
                     <Link
                       key={item.href}
@@ -289,21 +315,41 @@ export function Header() {
                   </div>
                   
                   <nav className="flex flex-col space-y-4 mt-2">
-                    {navItems.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setOpen(false)}
-                        className={`px-3 py-2 rounded-md text-base font-medium flex items-center font-display ${
-                          location === item.href || (item.href === '/categories' && location === '/')
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                      >
-                        <item.icon className={`mr-2 h-5 w-5 ${location === item.href || (item.href === '/categories' && location === '/') ? 'text-primary' : 'text-gray-500'}`} />
-                        {item.name}
-                      </Link>
-                    ))}
+                    {navItems.map((item) => {
+                      if (item.href === '/admin') return null;
+                      if (item.href === '/manage-categories' && !isAdmin) return null;
+
+                      if (item.href === '/add-word' && !isLoggedIn) {
+                        return (
+                          <button
+                            key={item.href}
+                            onClick={() => { setOpen(false); googleSignIn(); }}
+                            className="px-3 py-2 rounded-md text-base font-medium flex items-center font-display text-gray-400 hover:bg-gray-100 text-left"
+                            aria-label="Sign in to add a term"
+                          >
+                            <item.icon className="mr-2 h-5 w-5 text-gray-400" />
+                            {item.name}
+                            <span className="ml-2 text-xs text-gray-500 italic">(sign in)</span>
+                          </button>
+                        );
+                      }
+
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setOpen(false)}
+                          className={`px-3 py-2 rounded-md text-base font-medium flex items-center font-display ${
+                            location === item.href || (item.href === '/categories' && location === '/')
+                              ? 'bg-primary/10 text-primary'
+                              : 'text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          <item.icon className={`mr-2 h-5 w-5 ${location === item.href || (item.href === '/categories' && location === '/') ? 'text-primary' : 'text-gray-500'}`} />
+                          {item.name}
+                        </Link>
+                      );
+                    })}
                     
                     <Link
                       href="/about"

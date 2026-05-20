@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ThumbsUp, ThumbsDown, Edit, ArrowLeft, ArrowRight, History } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -79,7 +80,7 @@ export default function TermDetail() {
   const [slugMatch, slugParams] = useRoute("/term/:slug");
   const [idMatch, idParams] = useRoute("/term/id/:id");
   const [, setLocation] = useLocation();
-  const { user, isAdmin, isLoggedIn } = useAuth();
+  const { user, isAdmin, isLoggedIn, signIn } = useAuth();
   const { toast } = useToast();
   const [upvoteAnimation, setUpvoteAnimation] = useState(false);
   const [downvoteAnimation, setDownvoteAnimation] = useState(false);
@@ -340,8 +341,8 @@ export default function TermDetail() {
                     ))}
                   </div>
                 </div>
-                {isAdmin && (
-                  <Button 
+                {isLoggedIn ? (
+                  <Button
                     className="bg-[#0E76A8] text-white hover:bg-[#0E76A8]/90 border-0"
                     size="sm"
                     onClick={handleEdit}
@@ -349,6 +350,24 @@ export default function TermDetail() {
                     <Edit className="mr-2 h-4 w-4" />
                     Edit Term
                   </Button>
+                ) : (
+                  <TooltipProvider delayDuration={150}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => signIn()}
+                          className="opacity-60 hover:opacity-100 border-dashed"
+                          aria-label="Sign in to edit this term"
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit Term
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Sign in to edit this term</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 )}
               </div>
               

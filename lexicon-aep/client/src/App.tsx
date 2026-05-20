@@ -15,7 +15,6 @@ import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { SearchProvider } from "@/hooks/use-search";
 import { ErrorDialogProvider } from "@/hooks/use-error-dialog";
-import { CookieBanner } from "@/components/cookie-banner";
 import Helmet from "react-helmet";
 import { AuthProvider } from "@/hooks/use-firebase-auth";
 import { ProtectedRoute } from "@/components/protected-route";
@@ -76,7 +75,6 @@ function App() {
             </Route>
             <Route component={NotFound} />
           </Switch>
-          <CookieBanner />
           <Toaster />
         </SearchProvider>
       </AuthProvider>
