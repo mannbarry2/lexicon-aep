@@ -1,21 +1,27 @@
 import { useState, useMemo } from "react";
 import { TermWithMetadata } from "@shared/schema";
 
-// Helper function to strip HTML tags for search / emptiness checks
-function stripHtml(html: string): string {
+// Strip all HTML and collapse whitespace so definition previews are uniform
+// plain text — stored definitions can contain <h2>/<h3>/<strong> markup that
+// would otherwise render at heading size inside the table.
+function plainText(html: string): string {
   const tmp = document.createElement("DIV");
   tmp.innerHTML = html || "";
-  return tmp.textContent || tmp.innerText || "";
+  return (tmp.textContent || tmp.innerText || "").replace(/\s+/g, " ").trim();
 }
 
-// A definition shorter than this (after stripping HTML) is treated as a stub.
+// A definition shorter than this (as plain text) is treated as a stub.
 const STUB_LENGTH = 25;
+
+// Max characters shown in the Definition column before truncation.
+const SNIPPET_LENGTH = 110;
 
 // Matches the "[New Term Dropzone]" / "New Term Dropzone" category.
 const DROPZONE_RE = /drop\s*zone/i;
 
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Trash, CheckCircle2, Search, Image as ImageIcon, ImageOff, FileX, Inbox, FilterX } from "lucide-react";
+import { Trash, CheckCircle2, Search, Image as ImageIcon, ImageOff, FileX, Inbox, FilterX, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
@@ -79,7 +85,7 @@ export function TermBulkActions({ terms, onBulkActionComplete }: TermBulkActions
 
   // --- Per-term derived helpers ---
   const definitionLength = (term: TermWithMetadata) =>
-    stripHtml(term.definition).trim().length;
+    plainText(term.definition).length;
   const imageCount = (term: TermWithMetadata) => term.images?.length ?? 0;
   const inDropzone = (term: TermWithMetadata) =>
     term.categories.some((c) => DROPZONE_RE.test(c.name));
@@ -104,7 +110,7 @@ export function TermBulkActions({ terms, onBulkActionComplete }: TermBulkActions
         const q = searchQuery.toLowerCase().trim();
         const matches =
           term.name.toLowerCase().includes(q) ||
-          stripHtml(term.definition).toLowerCase().includes(q) ||
+          plainText(term.definition).toLowerCase().includes(q) ||
           term.categories.some((c) => c.name.toLowerCase().includes(q));
         if (!matches) return false;
       }
@@ -455,8 +461,13 @@ export function TermBulkActions({ terms, onBulkActionComplete }: TermBulkActions
               </TableRow>
             ) : (
               filteredTerms.map((term) => {
-                const defLen = definitionLength(term);
+                const defText = plainText(term.definition);
+                const defLen = defText.length;
                 const imgs = imageCount(term);
+                const snippet =
+                  defText.length > SNIPPET_LENGTH
+                    ? `${defText.slice(0, SNIPPET_LENGTH)}…`
+                    : defText;
                 return (
                   <TableRow
                     key={term.id}
@@ -470,7 +481,16 @@ export function TermBulkActions({ terms, onBulkActionComplete }: TermBulkActions
                         }
                       />
                     </TableCell>
-                    <TableCell className="font-medium">{term.name}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/edit-meaning?term=${term.id}`}
+                        className="group inline-flex items-center gap-1.5 text-primary hover:underline"
+                        title={`Edit "${term.name}"`}
+                      >
+                        {term.name}
+                        <Pencil className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
+                      </Link>
+                    </TableCell>
                     <TableCell className="text-sm">
                       {defLen === 0 ? (
                         <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600">
@@ -478,15 +498,14 @@ export function TermBulkActions({ terms, onBulkActionComplete }: TermBulkActions
                           No definition
                         </span>
                       ) : (
-                        <div
-                          className={cn(defLen < STUB_LENGTH && "text-amber-700")}
-                          dangerouslySetInnerHTML={{
-                            __html:
-                              term.definition.length > 100
-                                ? `${term.definition.substring(0, 100)}...`
-                                : term.definition,
-                          }}
-                        />
+                        <p
+                          className={cn(
+                            "text-muted-foreground",
+                            defLen < STUB_LENGTH && "text-amber-700",
+                          )}
+                        >
+                          {snippet}
+                        </p>
                       )}
                     </TableCell>
                     <TableCell>
