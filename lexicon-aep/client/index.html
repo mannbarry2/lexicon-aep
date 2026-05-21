@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="icon" href="/assets/aep-lexicon-logo.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <style>
@@ -59,8 +59,11 @@
       .shell-logo .lexicon {
         font-size: 1.25rem;
         font-weight: 500;
-        color: #2563eb;
+        color: #64748b;
         letter-spacing: 0.01em;
+      }
+      .shell-mark {
+        flex-shrink: 0;
       }
       .shell-platform {
         font-size: 1.125rem;
@@ -105,6 +108,14 @@
     <div id="root">
       <div class="shell">
         <div class="shell-header">
+          <svg class="shell-mark" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 9 L9 9 L9 39 L14 39" stroke="#2563eb" stroke-width="3.5"/>
+              <path d="M34 9 L39 9 L39 39 L34 39" stroke="#2563eb" stroke-width="3.5"/>
+              <path d="M24 15 L18 34 M24 15 L30 34" stroke="#2563eb" stroke-width="4"/>
+              <path d="M20 27 L28 27" stroke="#14b8a6" stroke-width="3.5"/>
+            </g>
+          </svg>
           <div class="shell-logo">
             <span class="aep">AEP</span>
             <span class="lexicon">Lexicon</span>

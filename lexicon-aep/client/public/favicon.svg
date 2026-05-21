@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="AEP Lexicon">
+  <rect width="48" height="48" rx="10" fill="#2563eb"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 9 L9 9 L9 39 L14 39" stroke="#ffffff" stroke-width="3.5"/>
+    <path d="M34 9 L39 9 L39 39 L34 39" stroke="#ffffff" stroke-width="3.5"/>
+    <path d="M24 15 L18 34 M24 15 L30 34" stroke="#ffffff" stroke-width="4"/>
+    <path d="M20 27 L28 27" stroke="#5eead4" stroke-width="3.5"/>
+  </g>
+</svg>
