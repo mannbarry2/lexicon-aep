@@ -20,6 +20,7 @@ export function Sidebar() {
       icon: Tag,
       active: location === "/categories" || location === "/",
       adminOnly: false,
+      loginRequired: false,
     },
     {
       name: "Add Word",
@@ -27,6 +28,7 @@ export function Sidebar() {
       icon: PlusCircle,
       active: location === "/add-word",
       adminOnly: false,
+      loginRequired: true,
     },
     {
       name: "Edit Meaning",
@@ -34,6 +36,7 @@ export function Sidebar() {
       icon: Edit,
       active: location === "/edit-meaning",
       adminOnly: false,
+      loginRequired: true,
     },
     {
       name: "Manage Categories",
@@ -41,6 +44,7 @@ export function Sidebar() {
       icon: Settings,
       active: location === "/manage-categories",
       adminOnly: true,
+      loginRequired: true,
     },
     {
       name: "Image Management",
@@ -48,6 +52,7 @@ export function Sidebar() {
       icon: Image,
       active: location === "/images",
       adminOnly: true,
+      loginRequired: true,
     },
     {
       name: "Admin Only",
@@ -55,8 +60,12 @@ export function Sidebar() {
       icon: ShieldAlert,
       active: location === "/admin",
       adminOnly: true,
+      loginRequired: true,
     },
-  ].filter((item) => !item.adminOnly || isAdmin);
+  ].filter(
+    (item) =>
+      (!item.adminOnly || isAdmin) && (!item.loginRequired || !!user),
+  );
 
   return (
     <div className="flex flex-col flex-grow bg-white border-r border-gray-200">
@@ -146,6 +155,7 @@ export function MobileNavigation() {
       icon: Tag,
       active: location === "/categories" || location === "/",
       adminOnly: false,
+      loginRequired: false,
     },
     {
       name: "Add Word",
@@ -153,6 +163,7 @@ export function MobileNavigation() {
       icon: PlusCircle,
       active: location === "/add-word",
       adminOnly: false,
+      loginRequired: true,
     },
     {
       name: "Edit Meaning",
@@ -160,6 +171,7 @@ export function MobileNavigation() {
       icon: Edit,
       active: location === "/edit-meaning",
       adminOnly: false,
+      loginRequired: true,
     },
     {
       name: "Manage Categories",
@@ -167,6 +179,7 @@ export function MobileNavigation() {
       icon: Settings,
       active: location === "/manage-categories",
       adminOnly: true,
+      loginRequired: true,
     },
     {
       name: "Image Management",
@@ -174,6 +187,7 @@ export function MobileNavigation() {
       icon: Image,
       active: location === "/images",
       adminOnly: true,
+      loginRequired: true,
     },
     {
       name: "Admin Only",
@@ -181,8 +195,12 @@ export function MobileNavigation() {
       icon: ShieldAlert,
       active: location === "/admin",
       adminOnly: true,
+      loginRequired: true,
     },
-  ].filter((item) => !item.adminOnly || isAdmin);
+  ].filter(
+    (item) =>
+      (!item.adminOnly || isAdmin) && (!item.loginRequired || !!user),
+  );
 
   return (
     <div className="sticky top-0 z-10 w-full">

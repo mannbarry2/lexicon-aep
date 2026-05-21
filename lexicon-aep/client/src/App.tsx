@@ -57,8 +57,16 @@ function App() {
                 <ManageCategories />
               </ProtectedRoute>
             </Route>
-            <Route path="/add-word" component={AddWord} />
-            <Route path="/edit-meaning" component={EditMeaning} />
+            <Route path="/add-word">
+              <ProtectedRoute>
+                <AddWord />
+              </ProtectedRoute>
+            </Route>
+            <Route path="/edit-meaning">
+              <ProtectedRoute>
+                <EditMeaning />
+              </ProtectedRoute>
+            </Route>
             <Route path="/term/:slug" component={TermDetail} />
             <Route path="/term/id/:id" component={TermDetail} />
             <Route path="/images">
