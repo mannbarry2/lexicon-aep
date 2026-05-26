@@ -396,7 +396,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.end();
     } catch (error) {
       console.error('Error generating PDF (stream):', error);
-      send('error', { message: 'Failed to generate the PDF. Please try again.' });
+      const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+      send('error', { message: `Failed to generate the PDF. ${detail}` });
       res.end();
     } finally {
       if (pdfPath) {

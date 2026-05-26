@@ -359,10 +359,22 @@ async function generateGlossaryPdfImpl(outputPath: string, onProgress?: Progress
   const bodyHtml = renderBody(enriched, imageMap);
 
   report(66, 'Launching renderer');
+  // Sparticuz defaults are tuned for Lambda — these tweaks make it survive
+  // Cloud Run / Firebase App Hosting too.
+  (chromium as any).setGraphicsMode = false;
+  const executablePath = await chromium.executablePath();
+  if (!executablePath) {
+    throw new Error(
+      'chromium.executablePath() returned empty — the Sparticuz binary failed to extract. ' +
+        'Check that @sparticuz/chromium is in dependencies (not devDependencies) and that ' +
+        '/tmp has enough free space.',
+    );
+  }
   const browser = await puppeteer.launch({
-    args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
-    executablePath: await chromium.executablePath(),
-    headless: (chromium as any).headless ?? true,
+    args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
+    defaultViewport: chromium.defaultViewport,
+    executablePath,
+    headless: chromium.headless as any,
   });
 
   // Render HTML, then wait for webfonts (Inter + emoji) to finish loading.
