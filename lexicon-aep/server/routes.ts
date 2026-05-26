@@ -361,6 +361,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate the glossary PDF with live progress over Server-Sent Events.
+  // Emits `progress` events while building, then a `complete` event carrying
+  // the finished PDF as base64 (kept on one connection — instance-safe).
+  app.get("/api/export/pdf/stream", async (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    if (typeof (res as any).flushHeaders === 'function') (res as any).flushHeaders();
+
+    const send = (event: string, data: unknown) => {
+      res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    };
+
+    let pdfPath: string | null = null;
+    try {
+      const { generateGlossaryPdf } = await import('./pdf-generator');
+      const pdfDir = path.join(process.cwd(), 'tmp');
+      if (!fs.existsSync(pdfDir)) {
+        fs.mkdirSync(pdfDir, { recursive: true });
+      }
+      pdfPath = path.join(pdfDir, `glossary-${Date.now()}.pdf`);
+
+      await generateGlossaryPdf(pdfPath, (percent, stage) => {
+        send('progress', { percent, stage });
+      });
+
+      const buffer = fs.readFileSync(pdfPath);
+      send('complete', {
+        filename: 'adobe-aep-lexicon.pdf',
+        base64: buffer.toString('base64'),
+      });
+      res.end();
+    } catch (error) {
+      console.error('Error generating PDF (stream):', error);
+      send('error', { message: 'Failed to generate the PDF. Please try again.' });
+      res.end();
+    } finally {
+      if (pdfPath) {
+        try {
+          fs.unlinkSync(pdfPath);
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+  });
+
   // Generate a public glossary PDF that can be accessed without authentication
   // Generate a small test PDF with just a few terms
   app.get("/test-glossary.pdf", async (req, res) => {
