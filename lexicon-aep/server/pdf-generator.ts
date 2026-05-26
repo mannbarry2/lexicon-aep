@@ -1,435 +1,956 @@
+import PDFDocument from 'pdfkit';
 import fs from 'fs';
 import path from 'path';
 import { storage } from './storage';
+import { db } from './db';
+import { sql } from 'drizzle-orm';
 import axios from 'axios';
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
-import { PDFDocument as PdfLibDocument } from 'pdf-lib';
 
-/**
- * Legacy plain-text HTML processor — still used by the single-term test route.
- * The main book generator below renders real HTML via Chromium instead.
- */
-export function processHtmlForPdf(html: string): { text: string; styles: { highlighted: string[]; codeBlocks: { text: string; position: number }[] } } {
+// Process HTML for PDF output preserving some formatting while fixing special characters
+// Main function to process HTML content for PDF, preserving formatting details
+export function processHtmlForPdf(html: string): { text: string, styles: { highlighted: string[], codeBlocks: {text: string, position: number}[] } } {
   if (!html) return { text: '', styles: { highlighted: [], codeBlocks: [] } };
-  const tmpText = html
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
+  
+  // First replace HTML entities with their actual characters
+  const entities: Record<string, string> = {
+    '&nbsp;': ' ',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&amp;': '&',
+    '&quot;': '"',
+    '&apos;': "'",
+    '&ndash;': '-',
+    '&mdash;': '-',
+    '&lsquo;': "'",
+    '&rsquo;': "'",
+    '&ldquo;': '"',
+    '&rdquo;': '"',
+    '&bull;': '•',
+    '&hellip;': '...',
+    '&copy;': '(c)',
+    '&reg;': '(r)',
+    '&trade;': '(tm)',
+    '&Oslash;': 'O',
+    '&oslash;': 'o',
+    '&Aring;': 'A',
+    '&aring;': 'a'
+  };
+  
+  let processedHtml = html;
+  
+  // Replace HTML entities
+  Object.entries(entities).forEach(([entity, char]) => {
+    processedHtml = processedHtml.replace(new RegExp(entity, 'g'), char);
+  });
+  
+  // Extract code blocks first (pre and code elements, or monospace font styles)
+  const codeBlocks: {text: string, position: number}[] = [];
+  const codeBlockPlaceholders: {placeholder: string, content: string, position: number}[] = [];
+  let codeBlockCounter = 0;
+  
+  // Match pre tags, code tags, and any spans with monospace or code-related attributes
+  const codeBlockRegexes = [
+    /<pre[^>]*>([\s\S]*?)<\/pre>/gi,
+    /<code[^>]*>([\s\S]*?)<\/code>/gi,
+    /<span[^>]*style="[^"]*font-family:\s*monospace[^"]*"[^>]*>([\s\S]*?)<\/span>/gi,
+    /<span[^>]*class="[^"]*code[^"]*"[^>]*>([\s\S]*?)<\/span>/gi
+  ];
+  
+  // Process each regex pattern 
+  for (const regex of codeBlockRegexes) {
+    let match;
+    let tempHtml = processedHtml;
+    
+    // Reset regex state for each pattern
+    regex.lastIndex = 0;
+    
+    while ((match = regex.exec(tempHtml)) !== null) {
+      const fullMatch = match[0];
+      const codeContent = match[1]
+        .replace(/<[^>]*>/g, '') // Remove any nested HTML tags
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&');
+        
+      const placeholder = `__CODE_BLOCK_${codeBlockCounter}__`;
+      
+      // Store position info for later replacement
+      const position = match.index;
+      codeBlocks.push({ text: codeContent, position });
+      codeBlockPlaceholders.push({ 
+        placeholder, 
+        content: codeContent,
+        position
+      });
+      
+      // Replace with placeholder
+      processedHtml = processedHtml.replace(fullMatch, placeholder);
+      codeBlockCounter++;
+      
+      // Update the temp HTML to avoid double matching
+      tempHtml = tempHtml.replace(fullMatch, ' '.repeat(fullMatch.length));
+    }
+  }
+  
+  // Extract highlighted/styled text before stripping HTML
+  // Look for spans with background/color styling which are likely highlighted terms
+  const highlightedTerms: string[] = [];
+  const highlightRegex = /<span[^>]*style="[^"]*(?:background|color)[^"]*"[^>]*>([^<]+)<\/span>/gi;
+  let match;
+  
+  while ((match = highlightRegex.exec(processedHtml)) !== null) {
+    highlightedTerms.push(match[1]);
+  }
+  
+  // Also extract parts highlighted with the "sandwich" class commonly used in Adobe terms
+  const sandwichRegex = /<span[^>]*class="[^"]*sandwich[^"]*"[^>]*>([^<]+)<\/span>/gi;
+  while ((match = sandwichRegex.exec(processedHtml)) !== null) {
+    highlightedTerms.push(match[1]);
+  }
+  
+  // Also match "the rule sandwich" phrase as it's specifically used in Adobe docs
+  const ruleRegex = /the rule sandwich/gi;
+  while ((match = ruleRegex.exec(processedHtml)) !== null) {
+    highlightedTerms.push(match[0]);
+  }
+  
+  // Process inline code (monospace formatting)
+  const inlineCodeRegex = /<(code|tt|kbd|pre)[^>]*>([^<]+)<\/\1>/gi;
+  while ((match = inlineCodeRegex.exec(processedHtml)) !== null) {
+    const codeText = match[2];
+    codeBlocks.push({ text: codeText, position: match.index });
+  }
+  
+  // Strip HTML tags
+  let result = processedHtml
+    .replace(/<\/?[^>]+(>|$)/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
-  return { text: tmpText, styles: { highlighted: [], codeBlocks: [] } };
-}
-
-type ProgressFn = (percent: number, stage: string) => void;
-
-interface EnrichedTerm {
-  id: number;
-  name: string;
-  definition: string;
-  isLegacy?: boolean;
-  categories: { id: number; name: string }[];
-  images?: { id: number; filename: string; firebaseUrl?: string | null }[];
-}
-
-const BRAND_BLUE = '#2563eb';
-const DROPZONE_RE = /drop\s*zone/i;
-
-// --- helpers -------------------------------------------------------------
-
-function escapeHtml(s: string): string {
-  return (s || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function plainText(html: string): string {
-  const div = (html || '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  return div;
+    
+  // Comprehensive processing of problematic special characters and sequences
+  // Replace each special character with a plain text equivalent
+  // This is specifically for PDF output which has trouble with certain unicode chars
+  result = result
+    // Handle specific character combinations that appear in Adobe terminology
+    .replace(/Ø=>/g, 'O=>') 
+    .replace(/Ø=/g, 'O=')
+    .replace(/Ø>/g, 'O>')
+    .replace(/Ø-/g, 'O-')
+    .replace(/Ø\(/g, 'O(')
+    .replace(/\)Ø/g, ')O')
+    .replace(/Ø</g, 'O<')
+    .replace(/Ø\./g, 'O.')
+    .replace(/Ø,/g, 'O,')
+    .replace(/Ø:/g, 'O:')
+    .replace(/Ø;/g, 'O;')
+    .replace(/ØY/g, 'O-Y')
+    .replace(/Ø\+/g, 'O+')
+    .replace(/Ø\*/g, 'O*')
+    .replace(/\sØ\s/g, ' O ')
+    .replace(/Ø([A-Z])/g, 'O-$1') // Ø followed by uppercase letter
+    .replace(/Ø([a-z])/g, 'O-$1') // Ø followed by lowercase letter
+    
+    // Replace numeric sequences
+    .replace(/0\./g, '0.')
+    .replace(/\.0/g, '.0')
+    .replace(/\d+Ø/g, (match) => match.replace('Ø', 'O'))
+    .replace(/Ø\d+/g, (match) => match.replace('Ø', 'O'))
+    
+    // Complete replacement of problematic characters
+    .replace(/Ø/g, 'O')
+    .replace(/ø/g, 'o')
+    .replace(/Å/g, 'A')
+    .replace(/å/g, 'a')
+    .replace(/æ/g, 'ae')
+    .replace(/Æ/g, 'AE')
+    .replace(/œ/g, 'oe')
+    .replace(/Œ/g, 'OE')
+    
+    // Extra spacing around specific punctuation
+    .replace(/([<>+:;])/g, ' $1 ') 
+    .replace(/\s+/g, ' ');
+  
+  // Restore code blocks in cleaned text
+  for (const block of codeBlockPlaceholders) {
+    result = result.replace(block.placeholder, `\n\n${block.content}\n\n`);
+  }
+  
+  // Clean up common phrase formatting: "send it downstream"
+  result = result.replace(/Send it downstream/gi, 'Send it downstream');
+  
+  // Clean up the rule sandwich terminology
+  result = result.replace(/the rule sandwich/gi, 'the rule sandwich');
+  
+  return { 
+    text: result, 
+    styles: { 
+      highlighted: highlightedTerms.filter(Boolean),
+      codeBlocks: codeBlocks
+    } 
+  };
 }
 
 /**
- * Remove authoring artefacts that have no printable glyph — chiefly
- * U+2E30 (⸰ RING POINT), used in the source data to bracket key terms.
+ * Generate a PDF version of the glossary with terms in alphabetical order
  */
-function stripArtifacts(s: string): string {
-  return (s || '').replace(/[⸰⸱]/g, '');
-}
-
-/** Sanitise a stored definition so it renders cleanly inside the book. */
-function cleanDefinition(html: string): string {
-  return stripArtifacts(html || '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/ on[a-z]+="[^"]*"/gi, '')
-    .replace(/<a\s/gi, '<a target="_blank" ');
-}
-
-/** Download a remote image and return it as a base64 data URI (or null on failure). */
-async function fetchAsDataUri(url: string): Promise<string | null> {
+export async function generateGlossaryPdf(outputPath: string): Promise<string> {
   try {
-    const resp = await axios.get(url, { responseType: 'arraybuffer', timeout: 15000 });
-    const contentType = (resp.headers['content-type'] as string) || 'image/png';
-    const b64 = Buffer.from(resp.data).toString('base64');
-    return `data:${contentType};base64,${b64}`;
-  } catch {
-    return null;
-  }
-}
-
-function formattedToday(): string {
-  const today = new Date();
-  const day = today.getDate();
-  const suffix = day > 3 && day < 21 ? 'th' : ['th', 'st', 'nd', 'rd'][day % 10] || 'th';
-  return `${day}${suffix} ${today.toLocaleString('default', { month: 'long' })} ${today.getFullYear()}`;
-}
-
-const FONT_IMPORT =
-  "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Color+Emoji&display=swap');";
-
-const LOGO_MARK = `
-<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <g stroke-linecap="round" stroke-linejoin="round">
-    <path d="M14 9 L9 9 L9 39 L14 39" stroke="${BRAND_BLUE}" stroke-width="3.5"/>
-    <path d="M34 9 L39 9 L39 39 L34 39" stroke="${BRAND_BLUE}" stroke-width="3.5"/>
-    <path d="M24 15 L18 34 M24 15 L30 34" stroke="${BRAND_BLUE}" stroke-width="4"/>
-    <path d="M20 27 L28 27" stroke="#14b8a6" stroke-width="3.5"/>
-  </g>
-</svg>`;
-
-// --- HTML templates ------------------------------------------------------
-
-function renderCover(termCount: number): string {
-  return `<!doctype html><html><head><meta charset="utf-8"><style>
-${FONT_IMPORT}
-@page { margin: 0; size: A4; }
-html,body { margin:0; padding:0; }
-.cover { width:210mm; height:297mm; box-sizing:border-box;
-  font-family:'Inter','Noto Color Emoji',sans-serif; color:#1e293b;
-  display:flex; flex-direction:column; }
-.band { height:9mm; background:${BRAND_BLUE}; }
-.main { flex:1; display:flex; flex-direction:column; align-items:center;
-  justify-content:center; padding:0 28mm; text-align:center; }
-.mark { width:104px; height:104px; margin-bottom:16mm; }
-.title { font-size:64px; font-weight:800; letter-spacing:-0.03em; line-height:1.04; }
-.title .lex { color:#64748b; font-weight:600; }
-.rule { width:66px; height:4px; background:#14b8a6; border-radius:2px; margin:10mm 0; }
-.subtitle { font-size:16px; color:#64748b; max-width:122mm; line-height:1.55; }
-.foot { padding:0 0 30mm; text-align:center; }
-.author { font-size:18px; font-weight:700; color:#1e293b; }
-.meta { font-size:12px; color:#94a3b8; margin-top:3mm; letter-spacing:0.02em; }
-</style></head><body>
-<div class="cover">
-  <div class="band"></div>
-  <div class="main">
-    <div class="mark">${LOGO_MARK}</div>
-    <div class="title">AEP<br><span class="lex">Lexicon</span></div>
-    <div class="rule"></div>
-    <div class="subtitle">The definitive glossary of Adobe Experience Platform terminology</div>
-  </div>
-  <div class="foot">
-    <div class="author">Barry Mann</div>
-    <div class="meta">Updated ${formattedToday()} &nbsp;·&nbsp; ${termCount} terms</div>
-  </div>
-  <div class="band"></div>
-</div>
-</body></html>`;
-}
-
-function renderTermEntry(term: EnrichedTerm, imageUri: string | null): string {
-  const cats = (term.categories || [])
-    .map((c) => `<span class="cat${DROPZONE_RE.test(c.name) ? ' dropzone' : ''}">${escapeHtml(c.name)}</span>`)
-    .join('');
-
-  const hasDefinition = plainText(term.definition).length > 0;
-  const defHtml = hasDefinition
-    ? `<div class="def">${cleanDefinition(term.definition)}</div>`
-    : `<div class="term-empty">No definition yet — this term needs writing up.</div>`;
-
-  const imgHtml = imageUri ? `<div class="term-img"><img src="${imageUri}" alt=""></div>` : '';
-
-  return `<div class="term">
-  <div class="term-name">${escapeHtml(stripArtifacts(term.name))}</div>
-  ${cats ? `<div class="cats">${cats}</div>` : ''}
-  ${defHtml}
-  ${imgHtml}
-</div>`;
-}
-
-function renderBody(terms: EnrichedTerm[], imageMap: Map<number, string>): string {
-  // Group by first alphabetic character in the name. Names that lead with
-  // brackets/punctuation (e.g. "[A]") fall back to their first letter, and
-  // names with no letters at all bucket under '#' — which sorts at the end.
-  const groups = new Map<string, EnrichedTerm[]>();
-  for (const t of terms) {
-    const key = (t.name.match(/[A-Za-z]/)?.[0] || '#').toUpperCase();
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push(t);
-  }
-  const letters = Array.from(groups.keys()).sort((a, b) => {
-    if (a === '#') return 1;
-    if (b === '#') return -1;
-    return a.localeCompare(b);
-  });
-
-  const contents = `<section class="contents">
-  <h1>Contents</h1>
-  <div class="sub">${terms.length} terms across ${letters.length} sections — tap any letter to jump.</div>
-  <div class="az">
-    ${letters
-      .map(
-        (l) =>
-          `<a href="#letter-${encodeURIComponent(l)}"><span class="L">${escapeHtml(l)}</span><span class="c">${groups.get(l)!.length}</span></a>`,
-      )
-      .join('\n    ')}
-  </div>
-</section>`;
-
-  const sections = letters
-    .map((l) => {
-      const items = groups
-        .get(l)!
-        .map((t) => renderTermEntry(t, imageMap.get(t.id) || null))
-        .join('\n');
-      return `<section class="letter" id="letter-${encodeURIComponent(l)}">
-  <div class="letter-head">
-    <span class="big">${escapeHtml(l)}</span>
-    <span class="line"></span>
-    <span class="n">${groups.get(l)!.length} ${groups.get(l)!.length === 1 ? 'term' : 'terms'}</span>
-  </div>
-  ${items}
-</section>`;
-    })
-    .join('\n');
-
-  return `<!doctype html><html><head><meta charset="utf-8"><style>
-${FONT_IMPORT}
-* { box-sizing:border-box; }
-html,body { margin:0; padding:0; }
-body { font-family:'Inter','Noto Color Emoji',sans-serif; color:#1e293b;
-  font-size:11pt; line-height:1.55; -webkit-print-color-adjust:exact; }
-
-.contents { break-after:page; }
-.contents h1 { font-size:32px; font-weight:800; letter-spacing:-0.02em; margin:0 0 2mm; color:#0f172a; }
-.contents .sub { color:#64748b; font-size:10.5pt; margin-bottom:9mm; }
-.az { display:flex; flex-wrap:wrap; gap:3mm; }
-.az a { display:flex; align-items:baseline; justify-content:space-between;
-  width:37mm; padding:2.6mm 4mm; border:1px solid #e2e8f0; border-radius:7px;
-  text-decoration:none; color:#1e293b; }
-.az a .L { font-size:15px; font-weight:700; color:${BRAND_BLUE}; }
-.az a .c { font-size:8.5pt; color:#94a3b8; }
-
-.letter { margin-top:8mm; }
-.letter:first-of-type { margin-top:0; }
-.letter-head { display:flex; align-items:center; gap:4mm; margin:0 0 4mm; break-after:avoid; }
-.letter-head .big { font-size:32px; font-weight:800; color:${BRAND_BLUE}; line-height:1; }
-.letter-head .line { flex:1; height:2px; background:#e2e8f0; }
-.letter-head .n { font-size:8.5pt; color:#94a3b8; white-space:nowrap; }
-
-.term { padding:3.5mm 0; border-bottom:1px solid #eef2f6; }
-.term-name { font-size:13.5pt; font-weight:700; color:#0f172a; margin:0 0 1.5mm;
-  break-after:avoid; }
-.cats { margin:0 0 2mm; break-after:avoid; }
-.cat { display:inline-block; font-size:7.5pt; font-weight:600; color:${BRAND_BLUE};
-  background:#eef4fe; border-radius:10px; padding:1px 8px; margin:0 4px 2px 0; }
-.cat.dropzone { color:#b45309; background:#fef3e2; }
-.term-empty { font-size:10pt; color:#b45309; font-style:italic; }
-
-.def { font-size:10.5pt; color:#334155; }
-.def > *:first-child { margin-top:0; }
-.def > *:last-child { margin-bottom:0; }
-.def p { margin:0 0 1.6mm; }
-.def h1,.def h2,.def h3,.def h4,.def h5,.def h6 {
-  font-size:10.5pt; font-weight:700; color:#0f172a; margin:2.4mm 0 1mm; line-height:1.4; }
-.def ul,.def ol { margin:1mm 0 1.8mm; padding-left:5.5mm; }
-.def li { margin:0.4mm 0; }
-.def strong,.def b { font-weight:700; color:#0f172a; }
-.def a,.def .term-link { color:${BRAND_BLUE}; text-decoration:none;
-  border-bottom:1px solid #bfdbfe; }
-.def pre { background:#f1f5f9; border:1px solid #e2e8f0; border-radius:5px;
-  padding:2.6mm 3mm; white-space:pre-wrap; word-break:break-word; margin:1.8mm 0;
-  font-family:'SF Mono',Menlo,Consolas,monospace; font-size:8.6pt; color:#0f172a; }
-.def code { font-family:'SF Mono',Menlo,Consolas,monospace; font-size:9pt;
-  background:#f1f5f9; border-radius:3px; padding:0 3px; }
-.def pre code { background:none; padding:0; }
-.def img { max-width:90mm; max-height:60mm; border:1px solid #e2e8f0;
-  border-radius:6px; margin:2mm 0; display:block; }
-
-.term-img { margin-top:2.5mm; break-inside:avoid; }
-.term-img img { max-width:96mm; max-height:74mm; border:1px solid #e2e8f0;
-  border-radius:7px; display:block; }
-</style></head><body>
-${contents}
-${sections}
-</body></html>`;
-}
-
-const HEADER_TEMPLATE = `<div style="width:100%; font-family:Arial,sans-serif; font-size:7px;
-  letter-spacing:0.12em; color:#cbd5e1; text-align:right; padding:0 16mm;">
-  AEP LEXICON</div>`;
-
-const FOOTER_TEMPLATE = `<div style="width:100%; font-family:Arial,sans-serif; font-size:8px;
-  color:#94a3b8; text-align:center; padding-top:2px;">
-  <span class="pageNumber"></span></div>`;
-
-// --- main generator ------------------------------------------------------
-
-// Only one Chromium-backed generation may run at a time — concurrent
-// launches race to extract/exec the shared binary and throw ETXTBSY.
-let generationChain: Promise<unknown> = Promise.resolve();
-
-/**
- * Generate a professionally typeset PDF of the glossary.
- * Renders an HTML/CSS book with Chromium so emoji, rich formatting and
- * images all appear correctly. Calls are serialised — a second request
- * queues behind the first.
- *
- * @param outputPath  where to write the PDF
- * @param onProgress  optional callback (percent 0-100, stage label)
- */
-export function generateGlossaryPdf(outputPath: string, onProgress?: ProgressFn): Promise<string> {
-  const result = generationChain
-    .catch(() => {})
-    .then(() => generateGlossaryPdfImpl(outputPath, onProgress));
-  generationChain = result.catch(() => {});
-  return result;
-}
-
-async function generateGlossaryPdfImpl(outputPath: string, onProgress?: ProgressFn): Promise<string> {
-  const report = (p: number, s: string) => {
-    try {
-      onProgress?.(Math.max(0, Math.min(100, Math.round(p))), s);
-    } catch {
-      /* ignore */
-    }
-  };
-
-  report(2, 'Gathering terms');
-  const baseTerms = await storage.searchTerms('');
-  baseTerms.sort((a: any, b: any) => a.name.localeCompare(b.name));
-  const total = baseTerms.length;
-  console.log(`Generating PDF book with ${total} terms`);
-
-  // Enrich each term with categories / images (batched for speed + progress)
-  const enriched: EnrichedTerm[] = [];
-  let metaDone = 0;
-  const META_BATCH = 8;
-  for (let i = 0; i < total; i += META_BATCH) {
-    const batch = baseTerms.slice(i, i + META_BATCH);
-    const results = await Promise.all(batch.map((t: any) => storage.getTermWithMetadata(t.id)));
-    for (const r of results) if (r) enriched.push(r as EnrichedTerm);
-    metaDone += batch.length;
-    report(2 + (metaDone / total) * 33, `Reading terms (${metaDone}/${total})`);
-  }
-  enriched.sort((a, b) => a.name.localeCompare(b.name));
-
-  // Pre-fetch the lead image for each term as a data URI (real progress here)
-  const imageTasks = enriched.filter((t) => t.images && t.images.length && t.images[0].firebaseUrl);
-  const imageMap = new Map<number, string>();
-  let imgDone = 0;
-  const IMG_BATCH = 6;
-  for (let i = 0; i < imageTasks.length; i += IMG_BATCH) {
-    const batch = imageTasks.slice(i, i + IMG_BATCH);
-    await Promise.all(
-      batch.map(async (t) => {
-        const uri = await fetchAsDataUri(t.images![0].firebaseUrl as string);
-        if (uri) imageMap.set(t.id, uri);
-      }),
-    );
-    imgDone += batch.length;
-    report(35 + (imgDone / Math.max(imageTasks.length, 1)) * 25, `Loading images (${imgDone}/${imageTasks.length})`);
-  }
-
-  report(62, 'Building pages');
-  const coverHtml = renderCover(enriched.length);
-  const bodyHtml = renderBody(enriched, imageMap);
-
-  report(66, 'Launching renderer');
-  // Sparticuz defaults are tuned for Lambda — these tweaks make it survive
-  // Cloud Run / Firebase App Hosting too.
-  (chromium as any).setGraphicsMode = false;
-  const executablePath = await chromium.executablePath();
-  if (!executablePath) {
-    throw new Error(
-      'chromium.executablePath() returned empty — the Sparticuz binary failed to extract. ' +
-        'Check that @sparticuz/chromium is in dependencies (not devDependencies) and that ' +
-        '/tmp has enough free space.',
-    );
-  }
-  const browser = await puppeteer.launch({
-    args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
-    defaultViewport: chromium.defaultViewport,
-    executablePath,
-    headless: chromium.headless as any,
-  });
-
-  // Render HTML, then wait for webfonts (Inter + emoji) to finish loading.
-  const renderReady = async (page: import('puppeteer-core').Page, html: string) => {
-    await page.setContent(html, { waitUntil: 'load' });
-    try {
-      await page.evaluate(() => (document as any).fonts?.ready);
-    } catch {
-      /* fonts API unavailable — proceed */
-    }
-    await new Promise((r) => setTimeout(r, 350));
-  };
-
-  try {
-    report(72, 'Rendering cover');
-    const coverPage = await browser.newPage();
-    await renderReady(coverPage, coverHtml);
-    const coverPdf = await coverPage.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '0', bottom: '0', left: '0', right: '0' },
+    // Get all terms
+    const terms = await storage.searchTerms('');
+    console.log(`Generating PDF with ${terms.length} terms`);
+    
+    // Sort terms alphabetically by name
+    terms.sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Create a new PDF document
+    const doc = new PDFDocument({
+      size: 'A4',
+      margins: {
+        top: 50,
+        bottom: 50,
+        left: 72,
+        right: 72
+      },
+      bufferPages: true
     });
-    await coverPage.close();
-
-    report(80, 'Rendering glossary');
-    const bodyPage = await browser.newPage();
-    await renderReady(bodyPage, bodyHtml);
-    const bodyPdf = await bodyPage.pdf({
-      format: 'A4',
-      printBackground: true,
-      displayHeaderFooter: true,
-      headerTemplate: HEADER_TEMPLATE,
-      footerTemplate: FOOTER_TEMPLATE,
-      margin: { top: '18mm', bottom: '16mm', left: '16mm', right: '16mm' },
-    });
-    await bodyPage.close();
-
-    report(90, 'Assembling book');
-    const merged = await PdfLibDocument.create();
-    const coverDoc = await PdfLibDocument.load(coverPdf);
-    const bodyDoc = await PdfLibDocument.load(bodyPdf);
-    for (const p of await merged.copyPages(coverDoc, coverDoc.getPageIndices())) merged.addPage(p);
-    for (const p of await merged.copyPages(bodyDoc, bodyDoc.getPageIndices())) merged.addPage(p);
-    merged.setTitle('AEP Lexicon');
-    merged.setAuthor('Barry Mann');
-    merged.setSubject('A glossary of Adobe Experience Platform terminology');
-    const finalBytes = await merged.save();
-
-    report(96, 'Saving file');
+    
+    // Create a write stream to save the PDF
     const outputFilePath = path.resolve(outputPath);
-    fs.writeFileSync(outputFilePath, finalBytes);
-    report(100, 'Done');
-    console.log(`PDF book generated at ${outputFilePath}`);
-    return outputFilePath;
-  } finally {
-    await browser.close();
+    const stream = fs.createWriteStream(outputFilePath);
+    doc.pipe(stream);
+    
+    // Format the date as "14th January 2025"
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.toLocaleString('default', { month: 'long' });
+    const year = today.getFullYear();
+    
+    // Add suffix to day number (1st, 2nd, 3rd, etc.)
+    const getDaySuffix = (day: number): string => {
+      if (day > 3 && day < 21) return 'th';
+      switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+    
+    const formattedDate = `${day}${getDaySuffix(day)} ${month} ${year}`;
+    
+    // Add a stylish cover page based on the provided design
+    // Draw colored diagonal borders
+    const pageWidth = doc.page.width;
+    const pageHeight = doc.page.height;
+    const centerX = pageWidth / 2;
+    const centerY = pageHeight / 2;
+    const coverSize = Math.min(pageWidth, pageHeight) * 0.65; // Size of the white octagon area
+    
+    // Draw colored triangles for the border
+    // Top-left (red)
+    doc.fillColor('#E53935')
+       .moveTo(0, 0)
+       .lineTo(centerX - coverSize/2, centerY - coverSize/2)
+       .lineTo(0, pageHeight/3)
+       .fill();
+    
+    // Top (orange)
+    doc.fillColor('#F57C00')
+       .moveTo(0, 0)
+       .lineTo(pageWidth, 0)
+       .lineTo(centerX + coverSize/2, centerY - coverSize/2)
+       .lineTo(centerX - coverSize/2, centerY - coverSize/2)
+       .fill();
+    
+    // Top-right (pink)
+    doc.fillColor('#D81B60')
+       .moveTo(pageWidth, 0)
+       .lineTo(pageWidth, pageHeight/3)
+       .lineTo(centerX + coverSize/2, centerY - coverSize/2)
+       .fill();
+    
+    // Right (crimson)
+    doc.fillColor('#C2185B')
+       .moveTo(pageWidth, pageHeight/3)
+       .lineTo(pageWidth, pageHeight * 2/3)
+       .lineTo(centerX + coverSize/2, centerY + coverSize/2)
+       .lineTo(centerX + coverSize/2, centerY - coverSize/2)
+       .fill();
+    
+    // Bottom-right (red)
+    doc.fillColor('#D32F2F')
+       .moveTo(pageWidth, pageHeight)
+       .lineTo(pageWidth, pageHeight * 2/3)
+       .lineTo(centerX + coverSize/2, centerY + coverSize/2)
+       .fill();
+    
+    // Bottom (purple)
+    doc.fillColor('#8E24AA')
+       .moveTo(0, pageHeight)
+       .lineTo(pageWidth, pageHeight)
+       .lineTo(centerX + coverSize/2, centerY + coverSize/2)
+       .lineTo(centerX - coverSize/2, centerY + coverSize/2)
+       .fill();
+    
+    // Bottom-left (purple)
+    doc.fillColor('#6A1B9A')
+       .moveTo(0, pageHeight)
+       .lineTo(0, pageHeight * 2/3)
+       .lineTo(centerX - coverSize/2, centerY + coverSize/2)
+       .fill();
+    
+    // Left (dark red)
+    doc.fillColor('#B71C1C')
+       .moveTo(0, pageHeight/3)
+       .lineTo(0, pageHeight * 2/3)
+       .lineTo(centerX - coverSize/2, centerY + coverSize/2)
+       .lineTo(centerX - coverSize/2, centerY - coverSize/2)
+       .fill();
+    
+    // Create white octagon for text
+    doc.fillColor('white')
+       .moveTo(centerX - coverSize/2, centerY - coverSize/2)
+       .lineTo(centerX + coverSize/2, centerY - coverSize/2)
+       .lineTo(centerX + coverSize/2, centerY + coverSize/2)
+       .lineTo(centerX - coverSize/2, centerY + coverSize/2)
+       .fill();
+    
+    // Add the title text in purple
+    const titleY = centerY - coverSize/4;
+    doc.fillColor('#4A148C')
+       .fontSize(60)
+       .font('Helvetica-Bold')
+       .text('AEP', centerX, titleY, { align: 'center' });
+    
+    doc.fillColor('#4A148C')
+       .fontSize(40)
+       .font('Helvetica-Bold')
+       .text('Lexicon', centerX, titleY + 65, { align: 'center' });
+    
+    // Add author's name at the bottom of the white area
+    doc.fillColor('black')
+       .fontSize(20)
+       .font('Helvetica-Bold')
+       .text('Barry Mann', centerX, centerY + coverSize/3, { align: 'center' });
+    
+    // Add generated date at the very bottom of the page
+    doc.fontSize(10)
+       .fillColor('white')
+       .text(`Generated on ${formattedDate}`, centerX, pageHeight - 30, { align: 'center' });
+    
+    doc.addPage();
+    
+    // Add simple table of contents title
+    doc.fontSize(20).text('Table of Contents', { align: 'center' });
+    doc.moveDown();
+    
+    // Get unique first letters
+    const letterSet = new Set<string>();
+    terms.forEach(term => letterSet.add(term.name.charAt(0).toUpperCase()));
+    const uniqueFirstLetters = Array.from(letterSet).sort();
+
+    // Create a page reference placeholder object
+    // We'll need to collect actual page numbers during content generation
+    const letterPageRefs: Record<string, number> = {};
+    
+    // Save the TOC page for later reference
+    const tocPage = doc.bufferedPageRange().start + 1;
+    
+    // Reserve space for TOC entries
+    doc.fontSize(12);
+    doc.text("Letter Sections:", { underline: true });
+    doc.moveDown(0.5);
+    
+    for (const letter of uniqueFirstLetters) {
+      // Reserve space in TOC for each letter with dots and page placeholder
+      doc.text(`${letter} ....................... pg. [TBD]`, { 
+        continued: false,
+        align: 'left'
+      });
+    }
+    
+    doc.moveDown(2);
+    
+    // Add term listing
+    doc.addPage();
+    
+    // Group terms by first letter
+    const termsByLetter: Record<string, typeof terms> = {};
+    for (const term of terms) {
+      const firstLetter = term.name.charAt(0).toUpperCase();
+      if (!termsByLetter[firstLetter]) {
+        termsByLetter[firstLetter] = [];
+      }
+      termsByLetter[firstLetter].push(term);
+    }
+    
+    // Fetch all terms with images for quicker lookup
+    const { rows: termsWithImagesRows } = await db.execute(sql`
+      SELECT 
+        t.id,
+        t.name,
+        t.slug,
+        json_agg(
+          json_build_object(
+            'id', ti.id,
+            'filename', ti.filename,
+            'firebase_url', ti.firebase_url
+          )
+        ) AS images
+      FROM terms t
+      JOIN term_images ti ON t.id = ti.term_id
+      GROUP BY t.id, t.name, t.slug
+    `);
+    
+    // Create a lookup map for terms with images
+    interface TermImageRow {
+      id: number;
+      name: string;
+      slug: string;
+      images: Array<{
+        id: number;
+        filename: string;
+        firebase_url: string;
+      }>;
+    }
+    
+    const termImagesMap = new Map<number, any>();
+    termsWithImagesRows.forEach((row: any) => {
+      if (row && typeof row.id === 'number') {
+        termImagesMap.set(row.id, row.images);
+      }
+    });
+    
+    // Process each letter group - no page breaks between letters unless needed
+    let isFirstLetter = true;
+    
+    for (const letter of uniqueFirstLetters) {
+      // Only add page break if not the first letter and there's content on the page
+      if (!isFirstLetter && doc.y > 700) {
+        doc.addPage();
+      } else if (!isFirstLetter) {
+        doc.moveDown(2);
+      }
+      
+      isFirstLetter = false;
+      
+      // Store the current page number for this letter section
+      letterPageRefs[letter] = doc.bufferedPageRange().start + 1;
+      
+      // Add letter header
+      doc.fontSize(24)
+        .fillColor('#0066CC')
+        .text(letter, { align: 'center' })
+        .moveDown()
+        .fillColor('black');
+      
+      // Add terms for this letter
+      const termsForLetter = termsByLetter[letter];
+      
+      // Process all terms for this letter
+      for (const term of termsForLetter) {
+        // Get the full term with metadata
+        const termWithMetadata = await storage.getTermWithMetadata(term.id);
+        
+        // Check if we need a page break based on remaining space
+        if (doc.y > 700) {
+          doc.addPage();
+        }
+        
+        // Process term name to replace problematic characters for PDF rendering
+        let processedTermName = term.name;
+        
+        // Apply the same character replacements to term names
+        processedTermName = processedTermName
+          .replace(/Ø/g, 'O')
+          .replace(/ø/g, 'o')
+          .replace(/Å/g, 'A')
+          .replace(/å/g, 'a')
+          .replace(/æ/g, 'ae')
+          .replace(/Æ/g, 'AE')
+          .replace(/œ/g, 'oe')
+          .replace(/Œ/g, 'OE');
+        
+        // Check if the term name contains a special term like "Sandwich" or "Rule Sandwich"
+        const specialTerms = ['sandwich', 'rule sandwich'];
+        const hasSpecialTerm = specialTerms.some(special => 
+          processedTermName.toLowerCase().includes(special));
+        
+        // If this is a special term with "sandwich" in it, highlight the sandwich part
+        if (hasSpecialTerm) {
+          // Find the position of "sandwich" or "rule sandwich" in the name (case insensitive)
+          const fullName = processedTermName;
+          
+          // Prepare to highlight the term
+          doc.fontSize(16).font('Helvetica-Bold');
+          
+          if (fullName.toLowerCase().includes('rule sandwich')) {
+            // Handle "Rule Sandwich" special case
+            const parts = fullName.split(/rule sandwich/i);
+            const beforeText = parts[0];
+            const afterText = parts.length > 1 ? parts[1] : '';
+            
+            // Get position for text
+            const startX = doc.x;
+            const startY = doc.y;
+            
+            // Get width of the parts
+            const beforeWidth = doc.widthOfString(beforeText);
+            const highlightWidth = doc.widthOfString('Rule Sandwich');
+            
+            // Draw the parts
+            doc.fillColor('#000000').text(beforeText, { continued: true });
+            
+            // Save positions for the highlight
+            const highlightX = startX + beforeWidth;
+            const highlightY = startY;
+            
+            // Draw yellow background for "Rule Sandwich"
+            doc.fillColor('#FFEB3B')
+              .rect(highlightX - 2, highlightY - 2, highlightWidth + 4, 22)
+              .fill();
+              
+            // Add the highlighted text
+            doc.fillColor('#000000')
+              .text('Rule Sandwich', highlightX, highlightY, { continued: afterText.length > 0 });
+              
+            // Add any remaining text after the highlight
+            if (afterText.length > 0) {
+              doc.text(afterText);
+            } else {
+              doc.moveDown(0.5);
+            }
+          } else if (fullName.toLowerCase().includes('sandwich')) {
+            // Handle "Sandwich" in general
+            const parts = fullName.split(/sandwich/i);
+            const beforeText = parts[0];
+            const afterText = parts.length > 1 ? parts[1] : '';
+            
+            // Get position for text
+            const startX = doc.x;
+            const startY = doc.y;
+            
+            // Get width of the parts
+            const beforeWidth = doc.widthOfString(beforeText);
+            const highlightWidth = doc.widthOfString('Sandwich');
+            
+            // Draw the parts
+            doc.fillColor('#000000').text(beforeText, { continued: true });
+            
+            // Save positions for the highlight
+            const highlightX = startX + beforeWidth;
+            const highlightY = startY;
+            
+            // Draw yellow background for "Sandwich"
+            doc.fillColor('#FFEB3B')
+              .rect(highlightX - 2, highlightY - 2, highlightWidth + 4, 22)
+              .fill();
+              
+            // Add the highlighted text
+            doc.fillColor('#000000')
+              .text('Sandwich', highlightX, highlightY, { continued: afterText.length > 0 });
+              
+            // Add any remaining text after the highlight
+            if (afterText.length > 0) {
+              doc.text(afterText);
+            } else {
+              doc.moveDown(0.5);
+            }
+          }
+        } else {
+          // For normal terms without special highlighting
+          doc.fontSize(16)
+            .fillColor('#000000')
+            .font('Helvetica-Bold')
+            .text(processedTermName, { 
+              characterSpacing: 0.5,
+              lineGap: 2
+            })
+            .moveDown(0.5);
+        }
+        
+        // Process definition with highlighted text preservation
+        const processedDefinition = processHtmlForPdf(termWithMetadata.definition || 'No definition provided.');
+        const { text: definition, styles } = processedDefinition;
+        
+        // Maintain a record of where highlighted terms appear in the text for rendering
+        // Match the exact text in the processed definition
+        const highlightPositions: Array<{ start: number, end: number, text: string }> = [];
+        
+        // Track code blocks for special formatting with monospace font
+        const codeBlockPositions: Array<{ text: string, position: number }> = styles.codeBlocks || [];
+        
+        // Get highlight positions for all highlighted terms
+        if (styles.highlighted.length > 0) {
+          console.log(`Found highlighted terms in "${term.name}": ${styles.highlighted.join(', ')}`);
+          
+          styles.highlighted.forEach(highlightedTerm => {
+            // Find all instances of the highlighted term in the definition
+            let index = definition.toLowerCase().indexOf(highlightedTerm.toLowerCase());
+            while (index !== -1) {
+              const end = index + highlightedTerm.length;
+              highlightPositions.push({
+                start: index,
+                end,
+                text: definition.substring(index, end)
+              });
+              index = definition.toLowerCase().indexOf(highlightedTerm.toLowerCase(), end);
+            }
+          });
+        }
+        
+        // If we have highlighted terms, we need to render the definition in segments
+        if (highlightPositions.length > 0) {
+          // Sort positions by start index
+          highlightPositions.sort((a, b) => a.start - b.start);
+          
+          // Combine overlapping highlights
+          const mergedPositions: Array<{ start: number, end: number, text: string }> = [];
+          let currentPos = highlightPositions[0];
+          
+          for (let i = 1; i < highlightPositions.length; i++) {
+            const nextPos = highlightPositions[i];
+            if (nextPos.start <= currentPos.end) {
+              // Overlapping highlights - merge them
+              currentPos.end = Math.max(currentPos.end, nextPos.end);
+              currentPos.text = definition.substring(currentPos.start, currentPos.end);
+            } else {
+              // Non-overlapping - add current to result and move on
+              mergedPositions.push(currentPos);
+              currentPos = nextPos;
+            }
+          }
+          mergedPositions.push(currentPos);
+          
+          // Render the definition with highlighted sections
+          let lastEnd = 0;
+          
+          for (const pos of mergedPositions) {
+            // Add non-highlighted text before this highlight
+            if (pos.start > lastEnd) {
+              const nonHighlightedText = definition.substring(lastEnd, pos.start);
+              doc.fontSize(12)
+                .font('Helvetica')
+                .fillColor('#000000')
+                .text(nonHighlightedText, {
+                  continued: true,
+                  lineGap: 2
+                });
+            }
+            
+            // Add highlighted text with special styling - use yellow background
+            // First draw a yellow rectangle for highlighting
+            const textHeight = doc.heightOfString(pos.text, {
+              width: doc.page.width - 144, // Page width minus margins
+              lineGap: 2
+            });
+            
+            // Save current position
+            const currentX = doc.x;
+            const currentY = doc.y;
+            
+            // Draw yellow highlight background
+            doc.fillColor('#FFEB3B') // Yellow background
+               .rect(currentX - 2, currentY - 2, 
+                    doc.widthOfString(pos.text) + 4, textHeight + 4)
+               .fill();
+            
+            // Add the actual text in black on top of the highlight
+            doc.fillColor('#000000') // Black text
+               .font('Helvetica-Bold')
+               .text(pos.text, currentX, currentY, {
+                 continued: pos.end < definition.length,
+                 lineGap: 2
+               });
+            
+            lastEnd = pos.end;
+          }
+          
+          // Add any remaining non-highlighted text
+          if (lastEnd < definition.length) {
+            const remainingText = definition.substring(lastEnd);
+            doc.fontSize(12)
+              .font('Helvetica')
+              .fillColor('#000000')
+              .text(remainingText, {
+                lineGap: 2
+              });
+          }
+          
+          doc.moveDown();
+        } else if (codeBlockPositions.length > 0) {
+          // We have code blocks that need special formatting with monospace font
+          // Find code blocks in the text
+          const codeRegex = /`([^`]+)`|\n\n([A-Za-z0-9\s\.:;<>{}()\[\]"'\/\\|!@#$%^&*=+-_]+)\n\n/g;
+          let match;
+          let lastIndex = 0;
+          
+          // Create segments of regular text and code blocks
+          const segments: Array<{
+            type: 'text' | 'code',
+            content: string
+          }> = [];
+          
+          // Process the text and identify code blocks by pattern
+          while ((match = codeRegex.exec(definition)) !== null) {
+            // Add text before this code block
+            if (match.index > lastIndex) {
+              segments.push({
+                type: 'text',
+                content: definition.substring(lastIndex, match.index)
+              });
+            }
+            
+            // Add the code block itself
+            segments.push({
+              type: 'code',
+              content: match[1] || match[2] // Either inline code or block code
+            });
+            
+            lastIndex = match.index + match[0].length;
+          }
+          
+          // Add any remaining text after the last code block
+          if (lastIndex < definition.length) {
+            segments.push({
+              type: 'text',
+              content: definition.substring(lastIndex)
+            });
+          }
+          
+          // If no segments were created because the regex didn't match, just add the whole text
+          if (segments.length === 0) {
+            segments.push({
+              type: 'text',
+              content: definition
+            });
+          }
+          
+          // Render each segment with appropriate formatting
+          for (const segment of segments) {
+            if (segment.type === 'code') {
+              // Add some padding before code blocks
+              doc.moveDown(0.5);
+              
+              // Draw a light gray background for code blocks
+              const codeHeight = doc.heightOfString(segment.content, {
+                width: doc.page.width - 144 - 20, // Page width minus margins and extra padding
+                lineGap: 2
+              });
+              
+              const codeX = doc.x;
+              const codeY = doc.y;
+              
+              // Gray background
+              doc.fillColor('#f5f5f5')
+                 .rect(codeX - 5, codeY - 5, doc.page.width - 144 - 10, codeHeight + 10)
+                 .fill();
+              
+              // Code text in monospace font
+              doc.font('Courier')
+                 .fontSize(11)
+                 .fillColor('#333333')
+                 .text(segment.content, codeX, codeY, {
+                   paragraphGap: 2,
+                   lineGap: 2,
+                   width: doc.page.width - 144 - 20,
+                   align: 'left'
+                 });
+                 
+              // Add padding after code blocks  
+              doc.moveDown(0.5);
+              
+              // Reset to regular font
+              doc.font('Helvetica').fontSize(12);
+            } else {
+              // Regular text
+              doc.font('Helvetica')
+                 .fontSize(12)
+                 .fillColor('#000000')
+                 .text(segment.content, {
+                   wordSpacing: 0.5,
+                   paragraphGap: 5,
+                   lineGap: 2,
+                   align: 'left'
+                 });
+            }
+          }
+          
+          doc.moveDown();
+        } else {
+          // No highlighted terms or code blocks, render normally
+          doc.fontSize(12)
+            .font('Helvetica')
+            .fillColor('#000000')
+            .text(definition, {
+              wordSpacing: 0.5,
+              paragraphGap: 5,
+              lineGap: 2,
+              align: 'left'
+            })
+            .moveDown();
+        }
+        
+        // Check if the term has images and add the first image if it exists
+        const termImages = termImagesMap.get(term.id);
+        if (termImages && termImages.length > 0) {
+          try {
+            // Only add the first image for space considerations
+            const firstImage = termImages[0];
+            if (firstImage && firstImage.firebase_url) {
+              const imageUrl = firstImage.firebase_url;
+              console.log(`Adding image for term ${term.name}: ${imageUrl}`);
+              
+              // Add a note about the image
+              doc.fontSize(10)
+                .fillColor('#666666')
+                .text('Image:')
+                .moveDown(0.5);
+              
+              // Embed the image with appropriate sizing
+              try {
+                // Download the image first, then embed it in the PDF
+                try {
+                  // Create a temporary directory for downloaded images if it doesn't exist
+                  const tempDir = path.join(process.cwd(), 'tmp');
+                  if (!fs.existsSync(tempDir)) {
+                    fs.mkdirSync(tempDir, { recursive: true });
+                  }
+                  
+                  // Download the image to a temporary file
+                  const tempFilePath = path.join(tempDir, `temp-image-${term.id}.png`);
+                  
+                  // Check if the URL is for a webp image (not supported by PDFKit)
+                  if (imageUrl.toLowerCase().includes('.webp')) {
+                    throw new Error('WebP format not supported in PDF');
+                  }
+                  
+                  // Download the image using axios with a timeout
+                  const response = await axios({
+                    method: 'get',
+                    url: imageUrl,
+                    responseType: 'arraybuffer',
+                    timeout: 5000 // 5 second timeout to prevent hanging
+                  });
+                  
+                  // Save the image to a temporary file
+                  fs.writeFileSync(tempFilePath, response.data);
+                  
+                  // Add the downloaded image to the PDF
+                  doc.image(tempFilePath, { 
+                    width: 250, // Limit the image width to fit the page
+                    align: 'center'
+                  }).moveDown(1);
+                  
+                  // Delete the temporary file after using it
+                  fs.unlinkSync(tempFilePath);
+                } catch (imgErr) {
+                  // If the image can't be downloaded or embedded, show a note with the filename
+                  console.error(`Error downloading/embedding image for term ${term.name}:`, imgErr);
+                  doc.fontSize(9)
+                    .fillColor('#999999')
+                    .text(`[Image available online: ${firstImage.filename}]`)
+                    .moveDown(1);
+                }
+              } catch (imgErr) {
+                console.error(`Error processing image for term ${term.name}:`, imgErr);
+                doc.text(`[Image could not be loaded: ${firstImage.filename}]`);
+              }
+            }
+          } catch (imageErr) {
+            console.error(`Error processing images for term ${term.name}:`, imageErr);
+          }
+        }
+        
+        // Add categories
+        if (termWithMetadata.categories && termWithMetadata.categories.length > 0) {
+          doc.fontSize(10)
+            .fillColor('#666666')
+            .text('Categories: ' + termWithMetadata.categories.map((c: any) => c.name).join(', '))
+            .moveDown(2);
+        } else {
+          doc.moveDown(2);
+        }
+      }
+    }
+    
+    // Now that we have collected page numbers for all letters,
+    // go back and update the table of contents
+    doc.switchToPage(tocPage - 1); // Page indexing starts at 0
+    
+    // Reset position to where we expect to start the TOC entries
+    const tocStartY = 170; // Adjust this value based on your specific layout
+    doc.y = tocStartY;
+    
+    // Clear existing TOC content by covering it with a white rectangle
+    doc.fillColor('white')
+       .rect(72, tocStartY, doc.page.width - 144, doc.page.height - tocStartY - 100)
+       .fill();
+    
+    // Add updated TOC header
+    doc.fillColor('black')
+       .fontSize(12)
+       .text("Letter Sections:", { underline: true });
+    doc.moveDown(0.5);
+    
+    // Add actual TOC entries with real page numbers
+    for (const letter of uniqueFirstLetters) {
+      const pageNum = letterPageRefs[letter];
+      
+      // Draw dots between the letter and page number
+      const letterWidth = doc.widthOfString(`${letter} `);
+      const pageNumWidth = doc.widthOfString(` ${pageNum}`);
+      const maxWidth = doc.page.width - 144; // Page width minus margins
+      const dotsWidth = maxWidth - letterWidth - pageNumWidth;
+      
+      let dots = '';
+      const singleDotWidth = doc.widthOfString('.');
+      const numberOfDots = Math.floor(dotsWidth / singleDotWidth);
+      for (let i = 0; i < numberOfDots; i++) {
+        dots += '.';
+      }
+      
+      // Write the TOC entry with dots
+      doc.text(`${letter} ${dots} ${pageNum}`, { 
+        continued: false,
+        align: 'left'
+      });
+    }
+    
+    // Add page numbers
+    const pageCount = doc.bufferedPageRange().count;
+    for (let i = 0; i < pageCount; i++) {
+      doc.switchToPage(i);
+      
+      // Skip page number on title page
+      if (i > 0) {
+        doc.fontSize(10)
+          .fillColor('#666666')
+          .text(
+            `Page ${i + 1} of ${pageCount}`, 
+            72, 
+            doc.page.height - 50,
+            { align: 'center' }
+          );
+      }
+    }
+    
+    // Finalize the PDF
+    doc.end();
+    
+    return new Promise((resolve, reject) => {
+      stream.on('finish', () => {
+        console.log(`PDF generated successfully at ${outputFilePath}`);
+        resolve(outputFilePath);
+      });
+      
+      stream.on('error', (err) => {
+        console.error('Error generating PDF:', err);
+        reject(err);
+      });
+    });
+  } catch (error) {
+    console.error('Error generating glossary PDF:', error);
+    throw error;
   }
 }
